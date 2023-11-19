@@ -1,9 +1,27 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import createError from "http-errors";
 import express from "express";
+import passport from "passport";
+import passportJWT from "passport-jwt";
+const JWTStrategy = passportJWT.Strategy;
+import bcrypt from "bcryptjs";
 import { fileURLToPath } from "url";
 import path from "path";
-import cookieParser from "cookie-parser";
 import logger from "morgan";
+import RateLimit from "express-rate-limit";
+import helmet from "helmet";
+import compression from "compression";
+
+// Set up mongoose connection
+import mongoose from "mongoose";
+mongoose.set("strictQuery", false);
+const mongoDB = process.env.MONGO_URI || null;
+main().catch((err) => console.log(err));
+async function main() {
+    await mongoose.connect(mongoDB);
+}
 
 import indexRouter from "./routes/index.js";
 import usersRouter from "./routes/users.js";
@@ -20,7 +38,6 @@ app.set("view engine", "pug");
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
