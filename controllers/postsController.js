@@ -1,7 +1,14 @@
 import asyncHandler from "express-async-handler";
 
+import Post from "../models/post.js";
+
 export const postsGet = asyncHandler(async (req, res, next) => {
-    res.send("Posts GET request");
+    const posts = await Post.find().exec();
+    if (posts !== null) {
+        res.json(posts);
+    } else {
+        res.json({});
+    }
 });
 
 export const postGet = asyncHandler(async (req, res, next) => {
