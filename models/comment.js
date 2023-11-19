@@ -25,4 +25,12 @@ const CommentSchema = new Schema({
     replies: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
 });
 
+CommentSchema.virtual("date_posted_formatted").get(function () {
+    return this.date_posted
+        ? DateTime.fromJSDate(this.date_posted).toLocaleString(
+              DateTime.DATETIME_SHORT_WITH_SECONDS
+          )
+        : null;
+});
+
 export default mongoose.model("Comment", CommentSchema);
