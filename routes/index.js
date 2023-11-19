@@ -1,3 +1,11 @@
-import posts from "./posts.js";
+import express from "express";
+const router = express.Router();
 
-export { posts };
+import posts from "./posts.js";
+import comments from "./comments.js";
+
+router.get("/", (req, res) => {
+    res.redirect("/posts");
+});
+
+export { router as index, posts, comments };

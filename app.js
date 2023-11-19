@@ -48,8 +48,9 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(compression());
 
 import * as routes from "./routes/index.js";
-
+app.use("/", routes.index);
 app.use("/posts", routes.posts);
+app.use("/posts/:postId/comments", routes.comments);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
