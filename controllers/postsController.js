@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import asyncHandler from "express-async-handler";
 
 import Post from "../models/post.js";
@@ -13,7 +14,15 @@ export const postsGet = asyncHandler(async (req, res, next) => {
 
 export const postGet = asyncHandler(async (req, res, next) => {
     const postId = req.params.postId;
-    res.send(`Post GET request, postId: ${postId}`);
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+        res.send("Provided resource id is invalid.");
+    }
+    const posts = await Post.findById(postId).exec();
+    if (posts !== null) {
+        res.json(posts);
+    } else {
+        res.send("Post not found.");
+    }
 });
 
 export const postCreate = asyncHandler(async (req, res, next) => {
