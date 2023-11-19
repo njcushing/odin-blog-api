@@ -21,7 +21,6 @@ const CommentSchema = new Schema({
         required: true,
     },
     date_posted: { type: Date, default: Date.now },
-    isReply: { type: Boolean },
     replies: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
 });
 
