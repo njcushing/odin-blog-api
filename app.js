@@ -28,6 +28,14 @@ import usersRouter from "./routes/users.js";
 
 var app = express();
 
+const limiter = RateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 20,
+});
+app.use(limiter);
+
+app.use(helmet());
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -39,6 +47,8 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use(compression());
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
