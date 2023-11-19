@@ -23,9 +23,6 @@ async function main() {
     await mongoose.connect(mongoDB);
 }
 
-import indexRouter from "./routes/index.js";
-import usersRouter from "./routes/users.js";
-
 var app = express();
 
 const limiter = RateLimit({
@@ -50,8 +47,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use(compression());
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
+import * as routes from "./routes/index.js";
+
+app.use("/posts", routes.posts);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
