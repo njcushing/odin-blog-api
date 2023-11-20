@@ -15,6 +15,7 @@ const PostSchema = new Schema({
     },
     comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
     date_posted: { type: Date, default: Date.now },
+    date_last_updated: { type: Date, default: Date.now },
     visible: { type: Boolean, required: true, default: true },
 });
 
