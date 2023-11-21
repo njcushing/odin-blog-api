@@ -22,6 +22,16 @@ const CommentSchema = new Schema({
     },
     date_posted: { type: Date, default: Date.now },
     replies: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
+    replying_to_post: {
+        type: Schema.Types.ObjectId,
+        ref: "Post",
+        default: null,
+    },
+    replying_to_comment: {
+        type: Schema.Types.ObjectId,
+        ref: "Comment",
+        default: null,
+    },
 });
 
 CommentSchema.virtual("date_posted_formatted").get(function () {
