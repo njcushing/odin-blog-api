@@ -23,9 +23,9 @@ export const validateDocumentIds = (res, postId, commentId) => {
     if (!validPostId || !validCommentId) {
         res.send(
             `${
-                validPostId && validCommentId
+                !validPostId && !validCommentId
                     ? `Provided post id and comment id are both invalid.`
-                    : validPostId
+                    : !validPostId
                     ? "Provided post id is invalid."
                     : "Provided comment id is invalid."
             }`
@@ -75,8 +75,25 @@ export const commentsGet = asyncHandler(async (req, res, next) => {
 });
 
 export const commentGet = asyncHandler(async (req, res, next) => {
+    const postId = req.params.postId;
     const commentId = req.params.commentId;
-    res.send(`Comment GET request, commentId: ${commentId}`);
+    validateDocumentIds(res, postId, commentId);
+    const post = await Post.findById(postId);
+    const comment = await Comment.findById(commentId);
+    if (post === null) {
+        res.send(`Specified post not found at: ${postId}.`);
+    }
+    if (comment === null) {
+        res.send(`Specified comment not found at: ${commentId}.`);
+    } else {
+        if (comment.parent_post !== postId) {
+            res.send(
+                `Comment exists, but it is not in reply to the specified post.`
+            );
+        } else {
+            res.json(comment);
+        }
+    }
 });
 
 export const commentCreate = asyncHandler(async (req, res, next) => {
