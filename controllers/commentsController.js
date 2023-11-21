@@ -5,6 +5,18 @@ import { body, validationResult } from "express-validator";
 import Comment from "../models/comment.js";
 import Post from "../models/post.js";
 
+const validateCommentId = (res, commentId) => {
+    if (!mongoose.Types.ObjectId.isValid(commentId)) {
+        res.send("Provided comment id is invalid.");
+    }
+};
+
+const validatePostId = (res, postId) => {
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+        res.send("Provided post id is invalid.");
+    }
+};
+
 export const validateDocumentIds = (res, postId, commentId) => {
     const validPostId = mongoose.Types.ObjectId.isValid(postId);
     const validCommentId = mongoose.Types.ObjectId.isValid(commentId);
