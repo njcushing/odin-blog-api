@@ -57,7 +57,21 @@ const sendValidationErrors = (res, errorsArray) => {
 };
 
 export const commentsGet = asyncHandler(async (req, res, next) => {
-    res.send("Comments GET request");
+    const postId = req.params.postId;
+    validatePostId(res, postId);
+    const post = await Post.findById(postId).populate("comments").exec();
+    if (post === null) {
+        res.send(`Specified post not found at: ${postId}.`);
+    } else {
+        try {
+            const comments = post.comments;
+            res.json(comments);
+        } catch (err) {
+            res.send(
+                `Post found at: ${postId}, but 'comments' field was not found on the returned document.`
+            );
+        }
+    }
 });
 
 export const commentGet = asyncHandler(async (req, res, next) => {
