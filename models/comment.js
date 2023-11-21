@@ -27,7 +27,7 @@ const CommentSchema = new Schema({
         ref: "Post",
         default: null,
     },
-    replying_to_comment: {
+    parent_comment: {
         type: Schema.Types.ObjectId,
         ref: "Comment",
         default: null,
