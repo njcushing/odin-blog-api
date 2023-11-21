@@ -3,10 +3,10 @@ const router = express.Router();
 
 import * as controller from "../controllers/commentsController.js";
 
-router.get("/", controller.commentsGet);
-router.get("/:commentId", controller.commentGet);
-router.post("/", controller.commentCreate);
-router.put("/:commentId", controller.commentUpdate);
-router.delete("/:commentId", controller.commentDelete);
+router.get("/:postId/comments/", controller.commentsGet);
+router.get("/:postId/comments/:commentId", controller.commentGet);
+router.post("/:postId/comments/", controller.commentCreate);
+router.put("/:postId/comments/:commentId", controller.commentUpdate);
+router.delete("/:postId/comments/:commentId", controller.commentDelete);
 
 export default router;
