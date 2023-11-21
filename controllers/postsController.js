@@ -3,6 +3,7 @@ import asyncHandler from "express-async-handler";
 import { body, validationResult } from "express-validator";
 
 import Post from "../models/post.js";
+import Comment from "../models/comment.js";
 
 const validatePostId = (res, postId) => {
     if (!mongoose.Types.ObjectId.isValid(postId)) {
@@ -111,5 +112,52 @@ export const postUpdate = [
 
 export const postDelete = asyncHandler(async (req, res, next) => {
     const postId = req.params.postId;
-    res.send(`Post DELETE request, postId: ${postId}`);
+    validatePostId(res, postId);
+    const post = await Post.findById(postId);
+    if (post === null) {
+        res.send(`Specified post not found at: ${postId}.`);
+    }
+
+    /*
+        Delete all comments referenced by the post including resursively
+        deleting all the replies to each comment
+    */
+    const commentsToDeleteSet = new Set();
+    const commentsToDeleteArray = [];
+    const findRepliesToComment = async (commentId) => {
+        if (commentsToDeleteSet.has(commentId)) return;
+        const comment = await Comment.findById(commentId);
+        if (comment === null) return;
+        commentsToDeleteSet.add(commentId);
+        commentsToDeleteArray.push(commentId);
+        await Promise.all(
+            comment.replies.map(async (reply) => {
+                await findRepliesToComment(reply._id);
+            })
+        );
+    };
+    await Promise.all(
+        post.comments.map(async (comment) => {
+            await findRepliesToComment(comment._id);
+        })
+    );
+
+    const deletedComments = await Comment.deleteMany({
+        _id: { $in: commentsToDeleteArray },
+    });
+    const deletedCount = deletedComments.deletedCount;
+
+    const deletedPost = await Post.findByIdAndDelete(postId);
+
+    res.send(`
+        ${
+            deletedPost === null
+                ? `Specified post not found at: ${postId}. ${deletedCount} comments deleted${
+                      deletedCount === 0
+                          ? `.`
+                          : ` (post was found in initial query but may have been deleted by another source prior to deletion by this process).`
+                  }`
+                : `Post successfully deleted at: ${postId}. ${deletedCount} comments deleted.`
+        }
+    `);
 });
