@@ -86,7 +86,7 @@ export const commentGet = asyncHandler(async (req, res, next) => {
     if (comment === null) {
         res.send(`Specified comment not found at: ${commentId}.`);
     } else {
-        if (comment.parent_post !== postId) {
+        if (comment.parent_post.toString() !== postId) {
             res.send(
                 `Comment exists, but it is not in reply to the specified post.`
             );
