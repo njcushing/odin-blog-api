@@ -202,10 +202,53 @@ export const replyCreate = [
     }),
 ];
 
-export const commentUpdate = asyncHandler(async (req, res, next) => {
-    const commentId = req.params.commentId;
-    res.send(`Comment UPDATE request, commentId: ${commentId}`);
-});
+export const commentUpdate = [
+    ...validateFields,
+    asyncHandler(async (req, res, next) => {
+        const postId = req.params.postId;
+        const commentId = req.params.commentId;
+        validateDocumentIds(res, postId, commentId);
+        const [post, comment] = await Promise.all([
+            Post.findById(postId),
+            Comment.findById(commentId),
+        ]);
+        if (post === null) {
+            res.send(`Specified post not found at: ${postId}.`);
+        } else if (comment === null) {
+            res.send(
+                `Specified comment to reply to not found at: ${commentId}.`
+            );
+        } else if (comment.parent_post.toString() !== postId) {
+            res.send(
+                `Comment to update exists, but it is not in reply to the specified post.`
+            );
+        } else {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                sendValidationErrors(res, errors.array());
+            } else {
+                const updatedComment = await Comment.findByIdAndUpdate(
+                    commentId,
+                    {
+                        $set: {
+                            first_name: req.body.first_name,
+                            last_name: req.body.last_name,
+                            text: req.body.text,
+                            date_last_updated: Date.now(),
+                        },
+                    },
+                    { new: true }
+                );
+                if (updatedComment === null) {
+                    res.send(`Specified post not found at: ${commentId}.`);
+                }
+                res.send(
+                    `Comment successfully updated at: ${commentId}. New comment details: ${updatedComment}`
+                );
+            }
+        }
+    }),
+];
 
 export const commentDelete = asyncHandler(async (req, res, next) => {
     const commentId = req.params.commentId;
