@@ -155,7 +155,6 @@ export const replyCreate = [
                 `Specified comment to reply to not found at: ${parentCommentId}.`
             );
         } else if (parentComment.parent_post.toString() !== postId) {
-            console.log(parentComment.parent_post, postId);
             res.send(
                 `Comment to reply to exists, but it is not in reply to the specified post.`
             );
