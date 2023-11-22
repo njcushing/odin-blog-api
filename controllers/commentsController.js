@@ -127,7 +127,7 @@ export const commentCreate = [
                     }),
                 ]);
                 res.send(
-                    `New comment successfully created. Post Id: ${comment._id}`
+                    `New comment successfully created. Comment Id: ${comment._id}`
                 );
             }
         }
