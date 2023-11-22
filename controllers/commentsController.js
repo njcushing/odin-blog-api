@@ -138,10 +138,70 @@ export const commentCreate = [
     }),
 ];
 
-export const replyCreate = asyncHandler(async (req, res, next) => {
-    const commentId = req.params.commentId;
-    res.send(`Comment POST request, commentId: ${commentId}`);
-});
+export const replyCreate = [
+    ...validateFields,
+    asyncHandler(async (req, res, next) => {
+        const postId = req.params.postId;
+        const parentCommentId = req.params.commentId;
+        validatePostId(res, postId);
+        const [post, parentComment] = await Promise.all([
+            Post.findById(postId),
+            Comment.findById(parentCommentId),
+        ]);
+        if (post === null) {
+            res.send(`Specified post not found at: ${postId}.`);
+        } else if (parentComment === null) {
+            res.send(
+                `Specified comment to reply to not found at: ${parentCommentId}.`
+            );
+        } else if (parentComment.parent_post.toString() !== postId) {
+            console.log(parentComment.parent_post, postId);
+            res.send(
+                `Comment to reply to exists, but it is not in reply to the specified post.`
+            );
+        } else {
+            const newCommentId = new mongoose.Types.ObjectId();
+            const errors = validationResult(req);
+            const comment = new Comment({
+                first_name: req.body.first_name,
+                last_name: req.body.last_name,
+                text: req.body.text,
+                date_posted: Date.now(),
+                replies: [],
+                parent_post: postId,
+                parent_comment: parentCommentId,
+                _id: newCommentId,
+            });
+            if (!errors.isEmpty()) {
+                sendValidationErrors(res, errors.array());
+            } else {
+                const [updatedParentPost, updatedParentComment] =
+                    await Promise.all([
+                        Post.findByIdAndUpdate(postId, {
+                            $push: { comments: newCommentId },
+                        }),
+                        Comment.findByIdAndUpdate(parentCommentId, {
+                            $push: { replies: newCommentId },
+                        }),
+                    ]);
+                if (updatedParentPost === null) {
+                    res.send(
+                        `Specified post not found at: ${postId}. Comment was not saved.`
+                    );
+                } else if (updatedParentComment === null) {
+                    res.send(
+                        `Specified comment to reply to not found at: ${parentCommentId}. Comment was not saved.`
+                    );
+                } else {
+                    await comment.save();
+                    res.send(
+                        `New comment successfully created. Comment Id: ${newCommentId}`
+                    );
+                }
+            }
+        }
+    }),
+];
 
 export const commentUpdate = asyncHandler(async (req, res, next) => {
     const commentId = req.params.commentId;
