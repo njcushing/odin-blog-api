@@ -143,7 +143,7 @@ export const replyCreate = [
     asyncHandler(async (req, res, next) => {
         const postId = req.params.postId;
         const parentCommentId = req.params.commentId;
-        validatePostId(res, postId);
+        validateDocumentIds(res, postId, parentCommentId);
         const [post, parentComment] = await Promise.all([
             Post.findById(postId),
             Comment.findById(parentCommentId),
