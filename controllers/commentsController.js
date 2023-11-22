@@ -134,6 +134,11 @@ export const commentCreate = [
     }),
 ];
 
+export const replyCreate = asyncHandler(async (req, res, next) => {
+    const commentId = req.params.commentId;
+    res.send(`Comment POST request, commentId: ${commentId}`);
+});
+
 export const commentUpdate = asyncHandler(async (req, res, next) => {
     const commentId = req.params.commentId;
     res.send(`Comment UPDATE request, commentId: ${commentId}`);
