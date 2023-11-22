@@ -21,6 +21,7 @@ const CommentSchema = new Schema({
         required: true,
     },
     date_posted: { type: Date, default: Date.now },
+    date_last_updated: { type: Date, default: Date.now },
     replies: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
     parent_post: {
         type: Schema.Types.ObjectId,
