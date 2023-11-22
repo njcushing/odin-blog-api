@@ -96,9 +96,43 @@ export const commentGet = asyncHandler(async (req, res, next) => {
     }
 });
 
-export const commentCreate = asyncHandler(async (req, res, next) => {
-    res.send("Comment CREATE request");
-});
+export const commentCreate = [
+    ...validateFields,
+    asyncHandler(async (req, res, next) => {
+        const postId = req.params.postId;
+        validatePostId(res, postId);
+        const post = await Post.findById(postId);
+        if (post === null) {
+            res.send(`Specified post not found at: ${postId}.`);
+        } else {
+            const newCommentId = new mongoose.Types.ObjectId();
+            const errors = validationResult(req);
+            const comment = new Comment({
+                first_name: req.body.first_name,
+                last_name: req.body.last_name,
+                text: req.body.text,
+                date_posted: Date.now(),
+                replies: [],
+                parent_post: postId,
+                parent_comment: null,
+                _id: newCommentId,
+            });
+            if (!errors.isEmpty()) {
+                sendValidationErrors(res, errors.array());
+            } else {
+                await Promise.all([
+                    comment.save(),
+                    Post.findByIdAndUpdate(postId, {
+                        $push: { comments: newCommentId },
+                    }),
+                ]);
+                res.send(
+                    `New comment successfully created. Post Id: ${comment._id}`
+                );
+            }
+        }
+    }),
+];
 
 export const commentUpdate = asyncHandler(async (req, res, next) => {
     const commentId = req.params.commentId;
