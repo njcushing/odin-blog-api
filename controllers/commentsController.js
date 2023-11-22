@@ -120,15 +120,19 @@ export const commentCreate = [
             if (!errors.isEmpty()) {
                 sendValidationErrors(res, errors.array());
             } else {
-                await Promise.all([
-                    comment.save(),
-                    Post.findByIdAndUpdate(postId, {
-                        $push: { comments: newCommentId },
-                    }),
-                ]);
-                res.send(
-                    `New comment successfully created. Comment Id: ${comment._id}`
-                );
+                const updatedParentPost = await Post.findByIdAndUpdate(postId, {
+                    $push: { comments: newCommentId },
+                });
+                if (updatedParentPost === null) {
+                    res.send(
+                        `Specified post not found at: ${postId}. Comment was not saved.`
+                    );
+                } else {
+                    await comment.save();
+                    res.send(
+                        `New comment successfully created. Comment Id: ${newCommentId}`
+                    );
+                }
             }
         }
     }),
