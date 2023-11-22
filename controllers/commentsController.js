@@ -251,6 +251,60 @@ export const commentUpdate = [
 ];
 
 export const commentDelete = asyncHandler(async (req, res, next) => {
+    const postId = req.params.postId;
     const commentId = req.params.commentId;
-    res.send(`Comment DELETE request, commentId: ${commentId}`);
+    validateDocumentIds(res, postId, commentId);
+    const [post, comment] = await Promise.all([
+        Post.findById(postId),
+        Comment.findById(commentId),
+    ]);
+    if (post === null) {
+        res.send(`Specified post not found at: ${postId}.`);
+    } else if (comment === null) {
+        res.send(`Specified comment to reply to not found at: ${commentId}.`);
+    } else if (comment.parent_post.toString() !== postId) {
+        res.send(
+            `Comment to delete exists, but it is not in reply to the specified post.`
+        );
+    } else {
+        // Resursively delete all the replies to the comment
+        const commentsToDeleteSet = new Set();
+        const commentsToDeleteArray = [];
+        const findRepliesToComment = async (commentId) => {
+            if (commentsToDeleteSet.has(commentId)) return;
+            const comment = await Comment.findById(commentId);
+            if (comment === null) return;
+            commentsToDeleteSet.add(commentId);
+            commentsToDeleteArray.push(commentId);
+            await Promise.all(
+                comment.replies.map(async (reply) => {
+                    await findRepliesToComment(reply._id);
+                })
+            );
+        };
+        await Promise.all(
+            comment.replies.map(async (comment) => {
+                await findRepliesToComment(comment._id);
+            })
+        );
+
+        const deletedComments = await Comment.deleteMany({
+            _id: { $in: commentsToDeleteArray },
+        });
+        const deletedCount = deletedComments.deletedCount + 1;
+
+        const deletedComment = await Comment.findByIdAndDelete(commentId);
+
+        res.send(`
+            ${
+                deletedComment === null
+                    ? `Specified comment not found at: ${commentId}. ${deletedCount} comments deleted${
+                          deletedCount === 0
+                              ? `.`
+                              : ` (comment was found in initial query but may have been deleted by another source prior to deletion by this process).`
+                      }`
+                    : `comment successfully deleted at: ${commentId}. ${deletedCount} comments deleted.`
+            }
+        `);
+    }
 });
