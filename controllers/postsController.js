@@ -98,7 +98,7 @@ export const postUpdate = [
                         visible: req.body.visible,
                     },
                 },
-                {}
+                { new: true }
             );
             if (updatedPost === null) {
                 res.send(`Specified post not found at: ${postId}.`);
