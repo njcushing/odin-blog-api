@@ -40,7 +40,7 @@ const postNotFound = (postId) => {
     return createError(404, `Specified post not found at: ${postId}.`);
 };
 
-const validateFields = [
+const validateMandatoryFields = [
     body("first_name", "'first_name' field (string) must not be empty")
         .trim()
         .isLength({ min: 1 })
@@ -50,6 +50,24 @@ const validateFields = [
         .isLength({ min: 1 })
         .escape(),
     body("text", "'text' field (string) must not be empty")
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
+];
+
+const validateOptionalFields = [
+    body("first_name", "'first_name' field (string) must not be empty")
+        .optional()
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
+    body("last_name", "'last_name' field (string) must not be empty")
+        .optional()
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
+    body("text", "'text' field (string) must not be empty")
+        .optional()
         .trim()
         .isLength({ min: 1 })
         .escape(),
@@ -100,7 +118,7 @@ export const commentGet = asyncHandler(async (req, res, next) => {
 });
 
 export const commentCreate = [
-    ...validateFields,
+    ...validateMandatoryFields,
     asyncHandler(async (req, res, next) => {
         const postId = req.params.postId;
         if (!validatePostId(next, postId)) return;
@@ -140,7 +158,7 @@ export const commentCreate = [
 ];
 
 export const replyCreate = [
-    ...validateFields,
+    ...validateMandatoryFields,
     asyncHandler(async (req, res, next) => {
         const postId = req.params.postId;
         const parentCommentId = req.params.commentId;
@@ -203,7 +221,7 @@ export const replyCreate = [
 ];
 
 export const commentUpdate = [
-    ...validateFields,
+    ...validateOptionalFields,
     asyncHandler(async (req, res, next) => {
         const postId = req.params.postId;
         const commentId = req.params.commentId;
