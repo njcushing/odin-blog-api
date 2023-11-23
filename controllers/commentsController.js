@@ -48,6 +48,14 @@ const commentParentPostMismatch = (commentId, postId) => {
     );
 };
 
+const successfulRequest = (res, status, message, data) => {
+    return res.status(status).send({
+        status: status,
+        message: message,
+        data: data,
+    });
+};
+
 const validateMandatoryFields = [
     body("first_name", "'first_name' field (string) must not be empty")
         .trim()
@@ -97,7 +105,7 @@ export const commentsGet = asyncHandler(async (req, res, next) => {
 
     try {
         const comments = post.comments;
-        res.json(comments);
+        return successfulRequest(res, 200, "Comments found", comments);
     } catch (err) {
         return createError(
             404,
@@ -123,7 +131,7 @@ export const commentGet = asyncHandler(async (req, res, next) => {
     ) {
         return next(commentParentPostMismatch(commentId, postId));
     } else {
-        res.json(comment);
+        return successfulRequest(res, 200, "Comment found", comment);
     }
 });
 
@@ -165,8 +173,11 @@ export const commentCreate = [
                 );
             } else {
                 await comment.save();
-                res.send(
-                    `New comment successfully created. Comment Id: ${newCommentId}`
+                return successfulRequest(
+                    res,
+                    201,
+                    `New comment successfully created. Comment Id: ${newCommentId}`,
+                    null
                 );
             }
         }
@@ -238,8 +249,11 @@ export const replyCreate = [
                 );
             } else {
                 await comment.save();
-                res.send(
-                    `New comment successfully created. Comment Id: ${newCommentId}`
+                return successfulRequest(
+                    res,
+                    201,
+                    `New comment successfully created. Comment Id: ${newCommentId}`,
+                    null
                 );
             }
         }
@@ -287,8 +301,11 @@ export const commentUpdate = [
             if (updatedComment === null) {
                 return next(commentNotFound(commentId));
             }
-            res.send(
-                `Comment successfully updated at: ${commentId}. New comment details: ${updatedComment}`
+            return successfulRequest(
+                res,
+                200,
+                `Comment successfully updated at: ${commentId}.`,
+                updatedComment
             );
         }
     }),
@@ -353,8 +370,11 @@ export const commentDelete = asyncHandler(async (req, res, next) => {
             )
         );
     } else {
-        res.send(
-            `Comment successfully deleted at: ${commentId}. ${deletedCount} comments deleted.`
+        return successfulRequest(
+            res,
+            200,
+            `Comment successfully deleted at: ${commentId}. ${deletedCount} comments deleted.`,
+            null
         );
     }
 });
