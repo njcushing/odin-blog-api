@@ -6,19 +6,23 @@ import createError from "http-errors";
 import Post from "../models/post.js";
 import Comment from "../models/comment.js";
 
-const validatePostId = (req, next, postId) => {
+const validatePostId = (next, postId) => {
     if (!mongoose.Types.ObjectId.isValid(postId)) {
-        return next(createError(400, "Provided resource id is invalid."));
+        return next(createError(400, `Provided postId: ${postId} is invalid.`));
     }
     return true;
 };
 
-const sendValidationErrors = (res, errorsArray) => {
+const compileValidationErrors = (errorsArray) => {
     const reducedErrorArray = [];
     errorsArray.forEach((error) => {
         reducedErrorArray.push(error.msg);
     });
-    res.send(`Unable to create new post: ${reducedErrorArray.join(", ")}`);
+    return reducedErrorArray.join(", ");
+};
+
+const postNotFound = (postId) => {
+    return createError(404, `Specified post not found at: ${postId}.`);
 };
 
 export const postsGet = asyncHandler(async (req, res, next) => {
@@ -35,7 +39,7 @@ export const postGet = asyncHandler(async (req, res, next) => {
     if (!validatePostId(res, next, postId)) return;
     const post = await Post.findById(postId).exec();
     if (post === null) {
-        res.send(`Specified post not found at: ${postId}.`);
+        return next(postNotFound(postId));
     } else {
         res.json(post);
     }
@@ -68,7 +72,10 @@ export const postCreate = [
             visible: req.body.visible,
         });
         if (!errors.isEmpty()) {
-            sendValidationErrors(res, errors.array());
+            const errorString = compileValidationErrors(errors.array());
+            return next(
+                createError(400, `Unable to create new post: ${errorString}`)
+            );
         } else {
             await post.save();
             res.send(`New post successfully created. Post Id: ${post._id}`);
@@ -101,7 +108,10 @@ export const postUpdate = [
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            sendValidationErrors(res, errors.array());
+            const errorString = compileValidationErrors(errors.array());
+            return next(
+                createError(400, `Unable to update post: ${errorString}`)
+            );
         } else {
             const updatedPost = await Post.findByIdAndUpdate(
                 postId,
@@ -115,9 +125,7 @@ export const postUpdate = [
                 },
                 { new: true }
             );
-            if (updatedPost === null) {
-                res.send(`Specified post not found at: ${postId}.`);
-            }
+            if (updatedPost === null) return next(postNotFound(postId));
             res.send(
                 `Post successfully updated at: ${postId}. New post details: ${updatedPost}`
             );
@@ -129,9 +137,7 @@ export const postDelete = asyncHandler(async (req, res, next) => {
     const postId = req.params.postId;
     if (!validatePostId(res, next, postId)) return;
     const post = await Post.findById(postId);
-    if (post === null) {
-        res.send(`Specified post not found at: ${postId}.`);
-    }
+    if (post === null) return next(postNotFound(postId));
 
     /*
         Delete all comments referenced by the post including resursively
@@ -164,15 +170,20 @@ export const postDelete = asyncHandler(async (req, res, next) => {
 
     const deletedPost = await Post.findByIdAndDelete(postId);
 
-    res.send(`
-        ${
-            deletedPost === null
-                ? `Specified post not found at: ${postId}. ${deletedCount} comments deleted${
-                      deletedCount === 0
-                          ? `.`
-                          : ` (post was found in initial query but may have been deleted by another source prior to deletion by this process).`
-                  }`
-                : `Post successfully deleted at: ${postId}. ${deletedCount} comments deleted.`
-        }
-    `);
+    if (deletedPost === null) {
+        return next(
+            createError(
+                404,
+                `Specified post not found at: ${postId}. ${deletedCount} comments deleted${
+                    deletedCount === 0
+                        ? `.`
+                        : ` (post was found in initial query but may have been deleted by another source prior to deletion by this process).`
+                }`
+            )
+        );
+    } else {
+        res.send(
+            `Post successfully deleted at: ${postId}. ${deletedCount} comments deleted.`
+        );
+    }
 });
