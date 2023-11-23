@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
 import asyncHandler from "express-async-handler";
 import { body, validationResult } from "express-validator";
+import createError from "http-errors";
 
 import Post from "../models/post.js";
 import Comment from "../models/comment.js";
 
-const validatePostId = (res, postId) => {
+const validatePostId = (req, next, postId) => {
     if (!mongoose.Types.ObjectId.isValid(postId)) {
-        res.send("Provided resource id is invalid.");
+        return next(createError(400, "Provided resource id is invalid."));
     }
+    return true;
 };
 
 const validateFields = [
@@ -48,7 +50,7 @@ export const postsGet = asyncHandler(async (req, res, next) => {
 
 export const postGet = asyncHandler(async (req, res, next) => {
     const postId = req.params.postId;
-    validatePostId(res, postId);
+    if (!validatePostId(res, next, postId)) return;
     const post = await Post.findById(postId).exec();
     if (post === null) {
         res.send(`Specified post not found at: ${postId}.`);
@@ -82,7 +84,7 @@ export const postUpdate = [
     ...validateFields,
     asyncHandler(async (req, res, next) => {
         const postId = req.params.postId;
-        validatePostId(res, postId);
+        if (!validatePostId(res, next, postId)) return;
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
@@ -112,7 +114,7 @@ export const postUpdate = [
 
 export const postDelete = asyncHandler(async (req, res, next) => {
     const postId = req.params.postId;
-    validatePostId(res, postId);
+    if (!validatePostId(res, next, postId)) return;
     const post = await Post.findById(postId);
     if (post === null) {
         res.send(`Specified post not found at: ${postId}.`);
