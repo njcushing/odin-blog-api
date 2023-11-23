@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import asyncHandler from "express-async-handler";
 import { body, validationResult } from "express-validator";
+import createError from "http-errors";
 
 import Comment from "../models/comment.js";
 import Post from "../models/post.js";
@@ -38,6 +39,13 @@ const commentNotFound = (commentId) => {
 
 const postNotFound = (postId) => {
     return createError(404, `Specified post not found at: ${postId}.`);
+};
+
+const commentParentPostMismatch = (commentId, postId) => {
+    return createError(
+        400,
+        `Comment exists at: ${commentId}, but it is not in reply to the specified post at: ${postId}.`
+    );
 };
 
 const validateMandatoryFields = [
@@ -109,8 +117,8 @@ export const commentGet = asyncHandler(async (req, res, next) => {
     if (comment === null) return next(commentNotFound(commentId));
 
     if (comment.parent_post.toString() !== postId) {
-        res.send(
-            `Comment exists, but it is not in reply to the specified post.`
+        return next(
+            commentParentPostMismatch(comment.parent_post.toString(), postId)
         );
     } else {
         res.json(comment);
@@ -172,8 +180,11 @@ export const replyCreate = [
             return next(commentNotFound(parentCommentId));
         }
         if (parentComment.parent_post.toString() !== postId) {
-            return res.send(
-                `Comment to reply to exists, but it is not in reply to the specified post.`
+            return next(
+                commentParentPostMismatch(
+                    parentComment.parent_post.toString(),
+                    postId
+                )
             );
         }
 
@@ -233,8 +244,11 @@ export const commentUpdate = [
         if (post === null) return next(postNotFound(postId));
         if (comment === null) return next(commentNotFound(commentId));
         if (comment.parent_post.toString() !== postId) {
-            res.send(
-                `Comment to update exists, but it is not in reply to the specified post.`
+            return next(
+                commentParentPostMismatch(
+                    comment.parent_post.toString(),
+                    postId
+                )
             );
         }
 
@@ -275,8 +289,8 @@ export const commentDelete = asyncHandler(async (req, res, next) => {
     if (post === null) return next(postNotFound(postId));
     if (comment === null) return next(commentNotFound(commentId));
     if (comment.parent_post.toString() !== postId) {
-        res.send(
-            `Comment to update exists, but it is not in reply to the specified post.`
+        return next(
+            commentParentPostMismatch(comment.parent_post.toString(), postId)
         );
     }
 
