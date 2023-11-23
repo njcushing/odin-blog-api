@@ -64,7 +64,7 @@ app.use(function (err, req, res, next) {
     if (req.app.get("env") === "development") {
         res.send(`${err.status} - ${err.stack}`);
     } else {
-        res.send({ status: err.status, message: err.message });
+        res.send({ status: err.status, message: err.message, data: null });
     }
 });
 
