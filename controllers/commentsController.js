@@ -155,8 +155,11 @@ export const commentCreate = [
                 $push: { comments: newCommentId },
             });
             if (updatedParentPost === null) {
-                res.send(
-                    `Specified post not found at: ${postId}. Comment was not saved.`
+                return next(
+                    createError(
+                        404,
+                        `Specified post not found at: ${postId}. Comment was not saved.`
+                    )
                 );
             } else {
                 await comment.save();
@@ -220,12 +223,18 @@ export const replyCreate = [
                 ]
             );
             if (updatedParentPost === null) {
-                res.send(
-                    `Specified post not found at: ${postId}. Comment was not saved.`
+                return next(
+                    createError(
+                        404,
+                        `Specified post not found at: ${postId}. Comment was not saved.`
+                    )
                 );
             } else if (updatedParentComment === null) {
-                res.send(
-                    `Specified comment to reply to not found at: ${parentCommentId}. Comment was not saved.`
+                return next(
+                    createError(
+                        404,
+                        `Specified comment to reply to not found at: ${parentCommentId}. Comment was not saved.`
+                    )
                 );
             } else {
                 await comment.save();
@@ -278,7 +287,7 @@ export const commentUpdate = [
                 { new: true }
             );
             if (updatedComment === null) {
-                res.send(`Specified post not found at: ${commentId}.`);
+                return next(commentNotFound(commentId));
             }
             res.send(
                 `Comment successfully updated at: ${commentId}. New comment details: ${updatedComment}`
@@ -333,15 +342,20 @@ export const commentDelete = asyncHandler(async (req, res, next) => {
 
     const deletedComment = await Comment.findByIdAndDelete(commentId);
 
-    res.send(`
-        ${
-            deletedComment === null
-                ? `Specified comment not found at: ${commentId}. ${deletedCount} comments deleted${
-                      deletedCount === 0
-                          ? `.`
-                          : ` (comment was found in initial query but may have been deleted by another source prior to deletion by this process).`
-                  }`
-                : `comment successfully deleted at: ${commentId}. ${deletedCount} comments deleted.`
-        }
-    `);
+    if (deletedComment === null) {
+        return next(
+            createError(
+                404,
+                `Specified comment not found at: ${commentId}. ${deletedCount} comments deleted${
+                    deletedCount === 0
+                        ? `.`
+                        : ` (comment was found in initial query but may have been deleted by another source prior to deletion by this process).`
+                }`
+            )
+        );
+    } else {
+        res.send(
+            `Comment successfully deleted at: ${commentId}. ${deletedCount} comments deleted.`
+        );
+    }
 });
