@@ -116,10 +116,11 @@ export const commentGet = asyncHandler(async (req, res, next) => {
     if (post === null) return next(postNotFound(postId));
     if (comment === null) return next(commentNotFound(commentId));
 
-    if (comment.parent_post.toString() !== postId) {
-        return next(
-            commentParentPostMismatch(comment.parent_post.toString(), postId)
-        );
+    if (
+        comment.parent_post === null ||
+        comment.parent_post.toString() !== postId
+    ) {
+        return next(commentParentPostMismatch(commentId, postId));
     } else {
         res.json(comment);
     }
@@ -185,13 +186,11 @@ export const replyCreate = [
         if (parentComment === null) {
             return next(commentNotFound(parentCommentId));
         }
-        if (parentComment.parent_post.toString() !== postId) {
-            return next(
-                commentParentPostMismatch(
-                    parentComment.parent_post.toString(),
-                    postId
-                )
-            );
+        if (
+            parentCommentId.parent_post === null ||
+            parentCommentId.parent_post.toString() !== postId
+        ) {
+            return next(commentParentPostMismatch(parentCommentId, postId));
         }
 
         const newCommentId = new mongoose.Types.ObjectId();
@@ -258,13 +257,11 @@ export const commentUpdate = [
         ]);
         if (post === null) return next(postNotFound(postId));
         if (comment === null) return next(commentNotFound(commentId));
-        if (comment.parent_post.toString() !== postId) {
-            return next(
-                commentParentPostMismatch(
-                    comment.parent_post.toString(),
-                    postId
-                )
-            );
+        if (
+            comment.parent_post === null ||
+            comment.parent_post.toString() !== postId
+        ) {
+            return next(commentParentPostMismatch(commentId, postId));
         }
 
         const errors = validationResult(req);
@@ -306,10 +303,11 @@ export const commentDelete = asyncHandler(async (req, res, next) => {
     ]);
     if (post === null) return next(postNotFound(postId));
     if (comment === null) return next(commentNotFound(commentId));
-    if (comment.parent_post.toString() !== postId) {
-        return next(
-            commentParentPostMismatch(comment.parent_post.toString(), postId)
-        );
+    if (
+        comment.parent_post === null ||
+        comment.parent_post.toString() !== postId
+    ) {
+        return next(commentParentPostMismatch(commentId, postId));
     }
 
     // Resursively delete all the replies to the comment
