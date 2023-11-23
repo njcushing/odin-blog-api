@@ -13,24 +13,6 @@ const validatePostId = (req, next, postId) => {
     return true;
 };
 
-const validateFields = [
-    body("title", "'title' field (string) must not be empty")
-        .trim()
-        .isLength({ min: 1 })
-        .escape(),
-    body("text", "'text' field (string) must not be empty")
-        .trim()
-        .isLength({ min: 1 })
-        .escape(),
-    body("visible")
-        .trim()
-        .isLength({ min: 1 })
-        .withMessage("'visible' field (boolean) must not be empty")
-        .escape()
-        .isBoolean()
-        .withMessage("'visible' field must be a boolean"),
-];
-
 const sendValidationErrors = (res, errorsArray) => {
     const reducedErrorArray = [];
     errorsArray.forEach((error) => {
@@ -60,7 +42,21 @@ export const postGet = asyncHandler(async (req, res, next) => {
 });
 
 export const postCreate = [
-    ...validateFields,
+    body("title", "'title' field (string) must not be empty")
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
+    body("text", "'text' field (string) must not be empty")
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
+    body("visible")
+        .trim()
+        .isLength({ min: 1 })
+        .withMessage("'visible' field (boolean) must not be empty")
+        .escape()
+        .isBoolean()
+        .withMessage("'visible' field must be a boolean"),
     asyncHandler(async (req, res, next) => {
         const errors = validationResult(req);
         const post = new Post({
@@ -81,7 +77,24 @@ export const postCreate = [
 ];
 
 export const postUpdate = [
-    ...validateFields,
+    body("title", "'title' field (string) must not be empty")
+        .optional()
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
+    body("text", "'text' field (string) must not be empty")
+        .optional()
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
+    body("visible")
+        .optional()
+        .trim()
+        .isLength({ min: 1 })
+        .withMessage("'visible' field (boolean) must not be empty")
+        .escape()
+        .isBoolean()
+        .withMessage("'visible' field must be a boolean"),
     asyncHandler(async (req, res, next) => {
         const postId = req.params.postId;
         if (!validatePostId(res, next, postId)) return;
