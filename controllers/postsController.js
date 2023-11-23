@@ -25,23 +25,31 @@ const postNotFound = (postId) => {
     return createError(404, `Specified post not found at: ${postId}.`);
 };
 
+const successfulRequest = (res, status, message, data) => {
+    return res.status(status).send({
+        status: status,
+        message: message,
+        data: data,
+    });
+};
+
 export const postsGet = asyncHandler(async (req, res, next) => {
     const posts = await Post.find().exec();
-    if (posts !== null) {
-        res.json(posts);
+    if (posts === null) {
+        return createError(404, `No posts found.`);
     } else {
-        res.json({});
+        return successfulRequest(res, 200, "Posts found", posts);
     }
 });
 
 export const postGet = asyncHandler(async (req, res, next) => {
     const postId = req.params.postId;
-    if (!validatePostId(res, next, postId)) return;
+    if (!validatePostId(next, postId)) return;
     const post = await Post.findById(postId).exec();
     if (post === null) {
         return next(postNotFound(postId));
     } else {
-        res.json(post);
+        return successfulRequest(res, 200, "Post found", post);
     }
 });
 
@@ -78,7 +86,12 @@ export const postCreate = [
             );
         } else {
             await post.save();
-            res.send(`New post successfully created. Post Id: ${post._id}`);
+            return successfulRequest(
+                res,
+                201,
+                `New post successfully created. Post Id: ${post._id}`,
+                null
+            );
         }
     }),
 ];
@@ -104,7 +117,7 @@ export const postUpdate = [
         .withMessage("'visible' field must be a boolean"),
     asyncHandler(async (req, res, next) => {
         const postId = req.params.postId;
-        if (!validatePostId(res, next, postId)) return;
+        if (!validatePostId(next, postId)) return;
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
@@ -126,8 +139,11 @@ export const postUpdate = [
                 { new: true }
             );
             if (updatedPost === null) return next(postNotFound(postId));
-            res.send(
-                `Post successfully updated at: ${postId}. New post details: ${updatedPost}`
+            return successfulRequest(
+                res,
+                200,
+                `Post successfully updated at: ${postId}.`,
+                updatedPost
             );
         }
     }),
@@ -135,7 +151,7 @@ export const postUpdate = [
 
 export const postDelete = asyncHandler(async (req, res, next) => {
     const postId = req.params.postId;
-    if (!validatePostId(res, next, postId)) return;
+    if (!validatePostId(next, postId)) return;
     const post = await Post.findById(postId);
     if (post === null) return next(postNotFound(postId));
 
@@ -182,8 +198,11 @@ export const postDelete = asyncHandler(async (req, res, next) => {
             )
         );
     } else {
-        res.send(
-            `Post successfully deleted at: ${postId}. ${deletedCount} comments deleted.`
+        return successfulRequest(
+            res,
+            200,
+            `Post successfully deleted at: ${postId}. ${deletedCount} comments deleted.`,
+            null
         );
     }
 });
