@@ -51,6 +51,7 @@ import * as routes from "./routes/index.js";
 app.use("/", routes.index);
 app.use("/posts", routes.posts);
 app.use("/posts", routes.comments);
+app.use("/login", routes.login);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
