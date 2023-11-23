@@ -81,12 +81,12 @@ const validateOptionalFields = [
         .escape(),
 ];
 
-const sendValidationErrors = (res, errorsArray) => {
+const compileValidationErrors = (errorsArray) => {
     const reducedErrorArray = [];
     errorsArray.forEach((error) => {
         reducedErrorArray.push(error.msg);
     });
-    res.send(`Unable to create new comment: ${reducedErrorArray.join(", ")}`);
+    return reducedErrorArray.join(", ");
 };
 
 export const commentsGet = asyncHandler(async (req, res, next) => {
@@ -146,7 +146,10 @@ export const commentCreate = [
             _id: newCommentId,
         });
         if (!errors.isEmpty()) {
-            sendValidationErrors(res, errors.array());
+            const errorString = compileValidationErrors(errors.array());
+            return next(
+                createError(400, `Unable to create new comment: ${errorString}`)
+            );
         } else {
             const updatedParentPost = await Post.findByIdAndUpdate(postId, {
                 $push: { comments: newCommentId },
@@ -201,7 +204,10 @@ export const replyCreate = [
             _id: newCommentId,
         });
         if (!errors.isEmpty()) {
-            sendValidationErrors(res, errors.array());
+            const errorString = compileValidationErrors(errors.array());
+            return next(
+                createError(400, `Unable to create new comment: ${errorString}`)
+            );
         } else {
             const [updatedParentPost, updatedParentComment] = await Promise.all(
                 [
@@ -254,7 +260,10 @@ export const commentUpdate = [
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            sendValidationErrors(res, errors.array());
+            const errorString = compileValidationErrors(errors.array());
+            return next(
+                createError(400, `Unable to create new comment: ${errorString}`)
+            );
         } else {
             const updatedComment = await Comment.findByIdAndUpdate(
                 commentId,
