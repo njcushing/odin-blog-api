@@ -99,8 +99,9 @@ export const commentsGet = asyncHandler(async (req, res, next) => {
         const comments = post.comments;
         res.json(comments);
     } catch (err) {
-        res.send(
-            `Post found at: ${postId}, but 'comments' field was not found on the returned document.`
+        return createError(
+            404,
+            `Comments field not found on specified post at : ${postId}.`
         );
     }
 });
