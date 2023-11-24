@@ -7,8 +7,8 @@
   },
   "type": "module",
   "scripts": {
-    "clientuserstart": "vite",
-    "clientadminstart": "vite",
+    "clientuserstart": "vite ./src_client_user",
+    "clientadminstart": "vite ./src_client_admin",
     "serverstart": "node ./src_server/bin/www.js",
     "serverstartdev": "nodemon ./src_server/bin/www.js"
   },
