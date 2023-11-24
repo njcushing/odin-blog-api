@@ -2,9 +2,12 @@ import mongoose from "mongoose";
 import asyncHandler from "express-async-handler";
 import { body, validationResult } from "express-validator";
 import createError from "http-errors";
+import passport from "passport";
 
 import Post from "../models/post.js";
 import Comment from "../models/comment.js";
+
+import protectedRouteJWT from "../utils/protectedRouteJWT.js";
 
 const validatePostId = (next, postId) => {
     if (!mongoose.Types.ObjectId.isValid(postId)) {
@@ -54,6 +57,7 @@ export const postGet = asyncHandler(async (req, res, next) => {
 });
 
 export const postCreate = [
+    protectedRouteJWT,
     body("title", "'title' field (string) must not be empty")
         .trim()
         .isLength({ min: 1 })
@@ -97,6 +101,7 @@ export const postCreate = [
 ];
 
 export const postUpdate = [
+    protectedRouteJWT,
     body("title", "'title' field (string) must not be empty")
         .optional()
         .trim()
@@ -149,60 +154,65 @@ export const postUpdate = [
     }),
 ];
 
-export const postDelete = asyncHandler(async (req, res, next) => {
-    const postId = req.params.postId;
-    if (!validatePostId(next, postId)) return;
-    const post = await Post.findById(postId);
-    if (post === null) return next(postNotFound(postId));
+export const postDelete = [
+    protectedRouteJWT,
+    asyncHandler(async (req, res, next) => {
+        const postId = req.params.postId;
+        if (!validatePostId(next, postId)) return;
+        const post = await Post.findById(postId);
+        if (post === null) return next(postNotFound(postId));
 
-    /*
-        Delete all comments referenced by the post including resursively
-        deleting all the replies to each comment
-    */
-    const commentsToDeleteSet = new Set();
-    const commentsToDeleteArray = [];
-    const findRepliesToComment = async (commentId) => {
-        if (commentsToDeleteSet.has(commentId)) return;
-        const comment = await Comment.findById(commentId);
-        if (comment === null) return;
-        commentsToDeleteSet.add(commentId);
-        commentsToDeleteArray.push(commentId);
+        /*
+            Delete all comments referenced by the post including resursively
+            deleting all the replies to each comment
+        */
+        const commentsToDeleteSet = new Set();
+        const commentsToDeleteArray = [];
+        const findRepliesToComment = async (commentId) => {
+            if (commentsToDeleteSet.has(commentId)) return;
+            // Making repeated db queries instead of one more broad query is likely
+            // horribly performant when scaled up, but it works for our small site
+            const comment = await Comment.findById(commentId);
+            if (comment === null) return;
+            commentsToDeleteSet.add(commentId);
+            commentsToDeleteArray.push(commentId);
+            await Promise.all(
+                comment.replies.map(async (reply) => {
+                    await findRepliesToComment(reply._id);
+                })
+            );
+        };
         await Promise.all(
-            comment.replies.map(async (reply) => {
-                await findRepliesToComment(reply._id);
+            post.comments.map(async (comment) => {
+                await findRepliesToComment(comment._id);
             })
         );
-    };
-    await Promise.all(
-        post.comments.map(async (comment) => {
-            await findRepliesToComment(comment._id);
-        })
-    );
 
-    const deletedComments = await Comment.deleteMany({
-        _id: { $in: commentsToDeleteArray },
-    });
-    const deletedCount = deletedComments.deletedCount;
+        const deletedComments = await Comment.deleteMany({
+            _id: { $in: commentsToDeleteArray },
+        });
+        const deletedCount = deletedComments.deletedCount;
 
-    const deletedPost = await Post.findByIdAndDelete(postId);
+        const deletedPost = await Post.findByIdAndDelete(postId);
 
-    if (deletedPost === null) {
-        return next(
-            createError(
-                404,
-                `Specified post not found at: ${postId}. ${deletedCount} comments deleted${
-                    deletedCount === 0
-                        ? `.`
-                        : ` (post was found in initial query but may have been deleted by another source prior to deletion by this process).`
-                }`
-            )
-        );
-    } else {
-        return successfulRequest(
-            res,
-            200,
-            `Post successfully deleted at: ${postId}. ${deletedCount} comments deleted.`,
-            null
-        );
-    }
-});
+        if (deletedPost === null) {
+            return next(
+                createError(
+                    404,
+                    `Specified post not found at: ${postId}. ${deletedCount} comments deleted${
+                        deletedCount === 0
+                            ? `.`
+                            : ` (post was found in initial query but may have been deleted by another source prior to deletion by this process).`
+                    }`
+                )
+            );
+        } else {
+            return successfulRequest(
+                res,
+                200,
+                `Post successfully deleted at: ${postId}. ${deletedCount} comments deleted.`,
+                null
+            );
+        }
+    }),
+];

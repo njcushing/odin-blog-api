@@ -1,10 +1,8 @@
 import asyncHandler from "express-async-handler";
 import { body, validationResult } from "express-validator";
 import createError from "http-errors";
+import passport from "passport";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-
-import User from "../models/user.js";
 
 const compileValidationErrors = (errorsArray) => {
     const reducedErrorArray = [];
@@ -31,43 +29,47 @@ export const loginPost = [
                 createError(401, `Invalid login attempt: ${errorString}`)
             );
         } else {
-            const { username, password } = req.body;
-            const user = await User.findOne({ username: username });
-            if (!user) {
-                return next(
-                    createError(
-                        401,
-                        `Invalid login attempt: Incorrect user credentials.`
-                    )
-                );
-            }
-            const match = await bcrypt.compare(password, user.password);
-            if (!match) {
-                return next(
-                    createError(
-                        401,
-                        `Invalid login attempt: Incorrect user credentials.`
-                    )
-                );
-            }
-            jwt.sign(
-                { user: req.user },
-                process.env.AUTH_SECRET_KEY,
-                { expiresIn: "600s" },
-                (err, token) => {
+            passport.authenticate(
+                "local",
+                { session: false },
+                (err, user, options) => {
                     if (err) {
                         return next(
-                            createError(401, `Invalid login attempt: ${err}`)
+                            createError(
+                                401,
+                                `Invalid login attempt: Incorrect user credentials.`
+                            )
                         );
-                    } else {
-                        res.status(200).send({
-                            status: 200,
-                            message: "Successfully logged in!",
-                            data: { token: token },
-                        });
+                    }
+                    if (user) {
+                        user.password = req.body.password; // Do not store hashed password locally
+                        jwt.sign(
+                            { user },
+                            process.env.AUTH_SECRET_KEY,
+                            { expiresIn: "600s" },
+                            (err, token) => {
+                                if (err) {
+                                    return next(
+                                        createError(
+                                            401,
+                                            `Invalid login attempt: ${err}`
+                                        )
+                                    );
+                                } else {
+                                    res.status(200).send({
+                                        status: 200,
+                                        message: "Successfully logged in!",
+                                        data: { token: token },
+                                    });
+                                }
+                            }
+                        );
+                    }
+                    if (options && options.message) {
+                        return next(createError(401, options.message));
                     }
                 }
-            );
+            )(req, res, next);
         }
     }),
 ];

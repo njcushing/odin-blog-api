@@ -4,8 +4,11 @@ dotenv.config();
 import createError from "http-errors";
 import express from "express";
 import passport from "passport";
+import passportLocal from "passport-local";
+const LocalStrategy = passportLocal.Strategy;
 import passportJWT from "passport-jwt";
 const JWTStrategy = passportJWT.Strategy;
+const ExtractJWT = passportJWT.ExtractJwt;
 import bcrypt from "bcryptjs";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -13,6 +16,8 @@ import logger from "morgan";
 import RateLimit from "express-rate-limit";
 import helmet from "helmet";
 import compression from "compression";
+
+import User from "./models/user.js";
 
 // Set up mongoose connection
 import mongoose from "mongoose";
@@ -39,6 +44,58 @@ const __dirname = path.dirname(__filename);
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
+
+// Verify current login details
+passport.use(
+    "local",
+    new LocalStrategy(async (username, password, done) => {
+        try {
+            const user = await User.findOne({ username: username });
+            if (!user) {
+                return done(null, false, { message: "Incorrect username" });
+            }
+            const match = await bcrypt.compare(password, user.password);
+            if (!match) {
+                return done(null, false, { message: "Incorrect password" });
+            }
+            return done(null, user);
+        } catch (err) {
+            return done(err);
+        }
+    })
+);
+
+// Verify token
+passport.use(
+    "jwt",
+    new JWTStrategy(
+        {
+            jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+            secretOrKey: process.env.AUTH_SECRET_KEY,
+        },
+        async (jwt_payload, done) => {
+            const { username, password } = jwt_payload.user;
+            try {
+                const user = await User.findOne({
+                    username: username,
+                });
+                if (!user) {
+                    return done(null, false, { message: "Unauthorised user." });
+                }
+                const match = await bcrypt.compare(password, user.password);
+                if (!match) {
+                    return done(null, false, { message: "Unauthorised user." });
+                }
+                if (!user.admin) {
+                    return done(null, false, { message: "Unauthorised user." });
+                }
+                return done(null, true);
+            } catch (err) {
+                return done(err);
+            }
+        }
+    )
+);
 
 app.use(logger("dev"));
 app.use(express.json());
