@@ -45,19 +45,18 @@ const __dirname = path.dirname(__filename);
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
+import validateUserCredentials from "./utils/validateUserCredentials.js";
+
 // Verify current login details
 passport.use(
     "local",
     new LocalStrategy(async (username, password, done) => {
         try {
-            const user = await User.findOne({ username: username });
-            if (!user) {
-                return done(null, false, { message: "Incorrect username" });
-            }
-            const match = await bcrypt.compare(password, user.password);
-            if (!match) {
-                return done(null, false, { message: "Incorrect password" });
-            }
+            const [status, user, msg] = await validateUserCredentials(
+                username,
+                password
+            );
+            if (!status) return done(null, false, { message: msg });
             return done(null, user);
         } catch (err) {
             return done(err);
@@ -76,16 +75,11 @@ passport.use(
         async (jwt_payload, done) => {
             const { username, password } = jwt_payload.user;
             try {
-                const user = await User.findOne({
-                    username: username,
-                });
-                if (!user) {
-                    return done(null, false, { message: "Unauthorised user." });
-                }
-                const match = await bcrypt.compare(password, user.password);
-                if (!match) {
-                    return done(null, false, { message: "Unauthorised user." });
-                }
+                const [status, user, msg] = await validateUserCredentials(
+                    username,
+                    password
+                );
+                if (!status) return done(null, false, { message: msg });
                 if (!user.admin) {
                     return done(null, false, { message: "Unauthorised user." });
                 }

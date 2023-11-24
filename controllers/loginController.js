@@ -36,13 +36,12 @@ export const loginPost = [
                     if (err) {
                         return next(
                             createError(
-                                401,
-                                `Invalid login attempt: Incorrect user credentials.`
+                                500,
+                                `Something went wrong with your request.`
                             )
                         );
                     }
                     if (user) {
-                        user.password = req.body.password; // Do not store hashed password locally
                         jwt.sign(
                             { user },
                             process.env.AUTH_SECRET_KEY,
