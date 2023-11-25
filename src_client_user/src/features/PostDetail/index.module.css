@@ -33,3 +33,20 @@
     padding: 0rem;
     margin: 0rem;
 }
+
+.comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    list-style: none;
+
+    padding: 1rem 0.2rem;
+    margin: 0rem;
+}
+
+.comment {
+    display: flex;
+    
+    width: 100%;
+}
