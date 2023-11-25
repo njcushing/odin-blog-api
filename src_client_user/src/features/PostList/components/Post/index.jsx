@@ -51,7 +51,7 @@ const Post = ({
             <div className={styles["bottom-row"]}>
                 <h5 className={styles["comment-count"]}>Comments: {commentCount}</h5>
                 <MaterialSymbolsAnchor
-                    href={_idValidated ? `/posts/${_idValidated}` : null}
+                    href={_idValidated ? `${window.location.href}/${_idValidated}` : null}
                     aria-label="View post"
                     text="article"
                     sizeRem={1.8}
