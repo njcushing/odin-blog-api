@@ -36,6 +36,7 @@ const PostList = () => {
                 return post.visible ? (
                     <li className={styles["post"]} key={post._id}>
                     <Post
+                        _id={post._id ? post._id : null}
                         title={post.title ? post.title : "Error"}
                         text={post.text ? post.text : "Error"}
                         datePosted={post.date_posted ? post.date_posted : null}
