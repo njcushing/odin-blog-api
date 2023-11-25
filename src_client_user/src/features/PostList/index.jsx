@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import styles from "./index.module.css";
 
-import Post from "@/components/Post";
+import Post from "./components/Post";
 
 const PostList = () => {
     const [postList, setPostList] = useState(null);
