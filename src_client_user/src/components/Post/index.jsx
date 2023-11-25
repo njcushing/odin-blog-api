@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import styles from "./index.module.css";
 
 const Post = ({
     title,
@@ -8,10 +9,12 @@ const Post = ({
     commentCount,
 }) => {
     return (
-        <>
-        <p>{title}</p>
-        <p>{text}</p>
-        </>
+        <div className={styles["wrapper"]}>
+        <div className={styles["container"]}>
+            <h3 className={styles["title"]}>{title}</h3>
+            <p className={styles["text"]}>{text}</p>
+        </div>
+        </div>
     );
 }
 
