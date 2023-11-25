@@ -3,6 +3,7 @@ dotenv.config();
 
 import createError from "http-errors";
 import express from "express";
+import cors from "cors";
 import passport from "passport";
 import passportLocal from "passport-local";
 const LocalStrategy = passportLocal.Strategy;
@@ -97,6 +98,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use(compression());
+
+// CORS config
+const trusted_domains = process.env.TRUSTED_DOMAINS || [];
+const getCorsOpts = (req, callback) => {
+    let corsOpts;
+    if (trusted_domains.includes(req.header("Origin"))) {
+        corsOpts = { origin: true };
+    } else {
+        corsOpts = { origin: false };
+    }
+    callback(null, corsOpts);
+};
+app.use("*", cors(getCorsOpts));
 
 import * as routes from "./routes/index.js";
 app.use("/", routes.index);
