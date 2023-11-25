@@ -34,9 +34,8 @@ const PostList = () => {
             <ul className={styles["post-list"]}>
             {postList ? postList.map((post) => {
                 return post.visible ? (
-                    <li className={styles["post"]}>
+                    <li className={styles["post"]} key={post._id}>
                     <Post
-                        key={post._id}
                         title={post.title ? post.title : "Error"}
                         text={post.text ? post.text : "Error"}
                         datePosted={post.date_posted ? post.date_posted : null}
