@@ -57,6 +57,23 @@ const PostDetail = () => {
             <div className={styles["post-information"]}>
                 <h1 className={styles["title"]}>{post ? post.title ? post.title : "" : ""}</h1>
                 <p className={styles["text"]}>{post ? post.text ? post.text : "" : ""}</p>
+                <ul className={styles["comment-list"]}>
+                {comments ? comments.map((comment) => {
+                    return (
+                        <li className={styles["comment"]} key={comment._id}>
+                        <Comment
+                            _id={comment._id ? comment._id : null}
+                            firstName={comment.first_name ? comment.first_name : "Error"}
+                            lastName={comment.last_name ? comment.last_name : "Error"}
+                            text={comment.text ? comment.text : "Error"}
+                            datePosted={comment.date_posted ? comment.date_posted : null}
+                            dateLastUpdated={comment.date_last_updated ? comment.date_last_updated : null}
+                            replyCount={comment.replies ? comment.replies.length : 0}
+                        />
+                        </li>
+                    );
+                }) : null}
+                </ul>
             </div>
         </div>
         </div>
