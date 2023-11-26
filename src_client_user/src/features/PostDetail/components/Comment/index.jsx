@@ -3,8 +3,9 @@ import PropTypes from "prop-types";
 import styles from "./index.module.css";
 
 import { DateTime } from "luxon";
-
 import mongoose from "mongoose";
+
+import MaterialSymbolsButton from "@/components/MaterialSymbolsButton";
 import MaterialSymbolsAnchor from "@/components/MaterialSymbolsAnchor";
 
 var isDate = function(date) {
@@ -61,15 +62,35 @@ const Comment = ({
                 }}
             >
                 <div className={styles["container"]}>
-                    <h3 className={styles["name"]}>{`${comment.first_name} ${comment.last_name}`}</h3>
-                    <p className={styles["text"]}>{comment.text}</p>
+                    <div className={styles["name-and-text"]}>
+                        <h3 className={styles["name"]}>{`${comment.first_name} ${comment.last_name}`}</h3>
+                        <p className={styles["text"]}>{comment.text}</p>
+                    </div>
                     <div className={styles["dates"]}>
                         <h5 className={styles["date-string"]}>Date posted: {formatDate(comment.date_posted)}</h5>
                         <h5 className={styles["date-string"]}>Date last updated: {formatDate(comment.date_last_updated)}</h5>
                     </div>
+                    <div className={styles["links"]}>
+                        <div className={styles["reply-button"]}>
+                            Reply
+                            <MaterialSymbolsButton
+                                aria-label="Reply to comment"
+                                text="reply"
+                                onClickHandler={() => {}}
+                                sizeRem={1.8}
+                            />
+                        </div>
+                        {depth >= maximumDepth
+                        ?   <a
+                                className={styles["view-more-replies-anchor"]}
+                                aria-label="View more replies"
+                                href={null}
+                            >View more replies...</a>
+                        :   null}
+                    </div>
                 </div>
             </li>
-            {depth <= maximumDepth
+            {depth < maximumDepth
             ?   comment.replies.map((reply) => {
                     return (
                         <Comment

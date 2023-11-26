@@ -12,7 +12,6 @@ const CommentList = ({
         <div className={styles["wrapper"]}>
         <div className={styles["container"]}>
             <ul className={styles["comment-list"]}>
-
                 <h3 className={styles["title"]}>Comments:</h3>
                 {commentIds.map((comment) => {
                     return (
