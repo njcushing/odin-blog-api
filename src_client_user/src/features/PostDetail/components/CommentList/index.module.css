@@ -9,6 +9,13 @@
     justify-content: center;
 }
 
+.title {
+    align-self: start;
+
+    padding: 0rem;
+    margin: 0rem;
+}
+
 .comment-list {
     display: flex;
     flex-direction: column;
