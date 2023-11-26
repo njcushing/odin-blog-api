@@ -6,7 +6,7 @@ import { DateTime } from "luxon";
 import mongoose from "mongoose";
 
 import MaterialSymbolsButton from "@/components/MaterialSymbolsButton";
-import MaterialSymbolsAnchor from "@/components/MaterialSymbolsAnchor";
+import CommentForm from "../CommentForm";
 
 var isDate = function(date) {
     return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
@@ -26,8 +26,10 @@ const Comment = ({
     commentId,
     depth,
     maximumDepth,
+    canReply,
 }) => {
     const [comment, setComment] = useState(null);
+    const [replying, setReplying] = useState(false);
 
     useEffect(() => {
         if (!mongoose.Types.ObjectId.isValid(postId)) return;
@@ -76,7 +78,9 @@ const Comment = ({
                             <MaterialSymbolsButton
                                 aria-label="Reply to comment"
                                 text="reply"
-                                onClickHandler={() => {}}
+                                onClickHandler={() => {
+                                    if (canReply) setReplying(true); 
+                                }}
                                 sizeRem={1.8}
                             />
                         </div>
@@ -88,6 +92,11 @@ const Comment = ({
                             >View more replies...</a>
                         :   null}
                     </div>
+                    {replying
+                    ?   <CommentForm
+                            // ...
+                        />
+                    :   null}
                 </div>
             </li>
             {depth < maximumDepth
@@ -98,6 +107,7 @@ const Comment = ({
                             commentId={reply}
                             depth={depth + 1}
                             maximumDepth={maximumDepth}
+                            canReply={true}
                         />
                     );
                 })
@@ -123,6 +133,11 @@ Comment.propTypes = {
             component '${componentName}'. Must be an integer.`);
         }
     },
+    canReply: PropTypes.bool,
+}
+
+Comment.defaultProps = {
+    canReply: false,
 }
 
 export default Comment;

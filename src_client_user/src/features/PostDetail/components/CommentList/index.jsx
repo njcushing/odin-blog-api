@@ -20,6 +20,7 @@ const CommentList = ({
                             commentId={comment}
                             depth={0}
                             maximumDepth={maximumDepth}
+                            canReply={true}
                         />
                     );
                 })}
