@@ -1,0 +1,25 @@
+.wrapper {
+    container-type: inline-size;
+
+    width: 100%;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+}
+
+.comment-list {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    gap: 0.4rem;
+
+    list-style: none;
+
+    width: 100%;
+    max-width: 1000px;
+
+    padding: 0rem;
+    margin: 1rem 0.2rem;
+}
