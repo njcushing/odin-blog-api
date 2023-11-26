@@ -32,7 +32,7 @@ const Comment = ({
     }
 
     let dateLastUpdatedFormatted;
-    if (dateLastUpdated && isDate(dateLastUpdated)) {
+    if (dateLastUpdated !== null && isDate(dateLastUpdated)) {
         dateLastUpdatedFormatted = DateTime.fromJSDate(new Date(dateLastUpdated)).toLocaleString(
             DateTime.DATETIME_SHORT_WITH_SECONDS
         );
