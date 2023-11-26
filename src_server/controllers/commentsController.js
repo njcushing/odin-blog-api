@@ -102,7 +102,21 @@ const compileValidationErrors = (errorsArray) => {
 export const commentsGet = asyncHandler(async (req, res, next) => {
     const postId = req.params.postId;
     if (!validatePostId(next, postId)) return;
-    const post = await Post.findById(postId).populate("comments").exec();
+    const post = await Post.findById(postId)
+        .populate({
+            path: "comments",
+            populate: {
+                path: "replies",
+                populate: {
+                    path: "replies",
+                    populate: {
+                        path: "replies",
+                    },
+                },
+            },
+        })
+        .limit(10)
+        .exec();
     if (post === null) return next(postNotFound(postId));
 
     try {
