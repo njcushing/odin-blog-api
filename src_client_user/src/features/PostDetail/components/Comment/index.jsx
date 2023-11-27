@@ -94,7 +94,8 @@ const Comment = ({
                     </div>
                     {replying
                     ?   <CommentForm
-                            // ...
+                            onCloseHandler={() => { setReplying(false); }}
+                            onSubmitHandler={() => {  }}
                         />
                     :   null}
                 </div>
