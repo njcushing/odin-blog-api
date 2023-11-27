@@ -112,7 +112,7 @@ const Comment = ({
                                 aria-label="Reply to comment"
                                 text="reply"
                                 onClickHandler={() => {
-                                    if (canReply) setReplying(true); 
+                                    if (canReply) setReplying(!replying); 
                                 }}
                                 sizeRem={1.8}
                             />
