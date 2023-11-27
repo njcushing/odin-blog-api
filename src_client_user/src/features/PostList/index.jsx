@@ -23,7 +23,9 @@ const PostList = () => {
                 }
             })
             .then((response) => setPostList(response.data))
-            .catch((error) => console.log(error))
+            .catch((error) => {
+                throw new Error(error);
+            })
     }, []);
 
     return (
