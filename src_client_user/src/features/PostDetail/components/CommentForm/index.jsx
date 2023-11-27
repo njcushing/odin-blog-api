@@ -28,7 +28,7 @@ const CommentForm = ({
             <form
                 className={styles["form"]}
                 method="POST"
-                action="/"
+                action=""
             >
                 <div className={styles["names"]}>
                     <label className={styles["first-name"]}>First Name *

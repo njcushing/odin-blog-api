@@ -21,6 +21,37 @@ const formatDate = (dateString) => {
     return "Unknown";
 }
 
+const submitReply = async (e, postId, commentId) => {
+    e.currentTarget.blur();
+    e.preventDefault(); // Prevent form submission; handle manually
+
+    const formData = new FormData(e.target.form);
+    const formDataJSON = JSON.stringify(Object.fromEntries(formData));
+
+    await fetch(`http://localhost:3000/posts/${postId}/comments/${commentId}`, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: formDataJSON,
+    })
+        .then((response) => {
+            if (response.status >= 400) {
+                throw new Error(`Request error: status ${response.status}`);
+            } else {
+                return response.json();
+            }
+        })
+        .then((response) => {
+            // Successful response - refresh page
+            location.reload(true);
+        })
+        .catch((error) => {
+            throw new Error(error);
+        })
+}
+
 const Comment = ({
     postId,
     commentId,
@@ -50,7 +81,9 @@ const Comment = ({
                 }
             })
             .then((response) => setComment(response.data))
-            .catch((error) => console.log(error))
+            .catch((error) => {
+                throw new Error(error);
+            })
     }, []);
 
     return (
@@ -96,7 +129,7 @@ const Comment = ({
                     ?   <div className={styles["comment-form"]}>
                             <CommentForm
                                 onCloseHandler={() => { setReplying(false); }}
-                                onSubmitHandler={() => {  }}
+                                onSubmitHandler={(e) => submitReply(e, postId, commentId)}
                             />
                         </div>
                     :   null}
