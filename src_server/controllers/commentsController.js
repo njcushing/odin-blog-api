@@ -201,8 +201,8 @@ export const replyCreate = [
             return next(commentNotFound(parentCommentId));
         }
         if (
-            parentCommentId.parent_post === null ||
-            parentCommentId.parent_post.toString() !== postId
+            parentComment.parent_post === null ||
+            parentComment.parent_post.toString() !== postId
         ) {
             return next(commentParentPostMismatch(parentCommentId, postId));
         }
