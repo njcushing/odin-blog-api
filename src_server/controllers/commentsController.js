@@ -227,9 +227,6 @@ export const replyCreate = [
         } else {
             const [updatedParentPost, updatedParentComment] = await Promise.all(
                 [
-                    Post.findByIdAndUpdate(postId, {
-                        $push: { comments: newCommentId },
-                    }),
                     Comment.findByIdAndUpdate(parentCommentId, {
                         $push: { replies: newCommentId },
                     }),
