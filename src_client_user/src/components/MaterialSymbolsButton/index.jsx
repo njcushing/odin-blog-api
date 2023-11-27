@@ -19,6 +19,9 @@ const MaterialSymbolsAnchor = ({
                 e.currentTarget.blur();
                 e.preventDefault();
             }}
+            onMouseLeave={(e) => {
+                e.currentTarget.blur();
+            }}
             aria-label={ariaLabel}
         >
             <ul><li
