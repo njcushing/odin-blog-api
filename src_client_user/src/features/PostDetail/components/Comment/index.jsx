@@ -93,10 +93,12 @@ const Comment = ({
                         :   null}
                     </div>
                     {replying
-                    ?   <CommentForm
-                            onCloseHandler={() => { setReplying(false); }}
-                            onSubmitHandler={() => {  }}
-                        />
+                    ?   <div className={styles["comment-form"]}>
+                            <CommentForm
+                                onCloseHandler={() => { setReplying(false); }}
+                                onSubmitHandler={() => {  }}
+                            />
+                        </div>
                     :   null}
                 </div>
             </li>

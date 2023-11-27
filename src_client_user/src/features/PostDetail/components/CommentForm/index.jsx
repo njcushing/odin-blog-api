@@ -22,7 +22,7 @@ const CommentForm = ({
                 <h4
                     className={styles["requirement-message"]}
                 >
-                        All fields marked with a * are <strong>required</strong>.
+                        All fields marked with a <strong>*</strong> are <strong>required</strong>.
                 </h4>
             </div>
             <form
