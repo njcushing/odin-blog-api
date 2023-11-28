@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import PropTypes from "prop-types";
 import styles from "./index.module.css";
 
 import CommentList from "./components/CommentList";
 
-const PostDetail = () => {
+const PostDetail = ({
+    canReply,
+}) => {
     const { postId } = useParams();
 
     const [post, setPost] = useState(null);
@@ -65,6 +68,14 @@ const PostDetail = () => {
         </div>
         </div>
     );
+}
+
+PostDetail.propTypes = {
+    canReply: PropTypes.bool,
+}
+
+PostDetail.defaultProps = {
+    canReply: false,
 }
 
 export default PostDetail;
