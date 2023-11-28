@@ -105,8 +105,8 @@ const Comment = ({
         ?   <>
             <li className={styles["wrapper"]}
                 style={{
-                    width: `${Math.max(100 - (5 * depth), 50)}%`,
-                    minWidth: `${700 * Math.max(1 - (0.05 * depth), 0.5)}px`,
+                    width: `${Math.max(100 - (5 * (depth - 1)), 50)}%`,
+                    minWidth: `${700 * Math.max(1 - (0.05 * (depth - 1)), 0.5)}px`,
                 }}
             >
                 <div className={styles["container"]}>
