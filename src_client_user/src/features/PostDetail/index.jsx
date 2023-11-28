@@ -32,16 +32,35 @@ const PostDetail = () => {
     return (
         <div className={styles["wrapper"]}>
         <div className={styles["container"]}>
+            <button
+                className={styles["return-button"]}
+                onClick={(e) => {
+                    e.currentTarget.blur();
+                    e.preventDefault();
+                    window.location.href = "/posts";
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.blur();
+                }}
+            >Return to Post List</button>
             <div className={styles["post-information"]}>
-                <h1 className={styles["title"]}>{post ? post.title ? post.title : "" : ""}</h1>
-                <p className={styles["text"]}>{post ? post.text ? post.text : "" : ""}</p>
-                {post ? post.comments
-                ? <CommentList
-                    postId={postId}
-                    commentIds={post.comments}
-                    maximumDepth={4}
-                    />
-                : null : null}
+                {post
+                ?   <>
+                    <h1 className={styles["title"]}>{
+                        post.title ? post.title : "This post has no title."
+                    }</h1>
+                    <p className={styles["text"]}>{
+                        post.text ? post.text : "This post has no description."
+                    }</p>
+                    {post.comments ? post.comments.length > 0
+                    ? <CommentList
+                        postId={postId}
+                        commentIds={post.comments}
+                        maximumDepth={4}
+                        />
+                    : <h4>Be the first to comment on this post!</h4> : null}
+                    </>
+                : null }
             </div>
         </div>
         </div>
