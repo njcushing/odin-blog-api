@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import styles from "./index.module.css";
 
@@ -21,37 +21,6 @@ const formatDate = (dateString) => {
     return "Unknown";
 }
 
-const submitReply = async (e, postId, commentId) => {
-    e.currentTarget.blur();
-    e.preventDefault(); // Prevent form submission; handle manually
-
-    const formData = new FormData(e.target.form);
-    const formDataJSON = JSON.stringify(Object.fromEntries(formData));
-
-    await fetch(`http://localhost:3000/posts/${postId}/comments/${commentId}`, {
-        method: "POST",
-        mode: "cors",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: formDataJSON,
-    })
-        .then((response) => {
-            if (response.status >= 400) {
-                throw new Error(`Request error: status ${response.status}`);
-            } else {
-                return response.json();
-            }
-        })
-        .then((response) => {
-            // Successful response - refresh page
-            location.reload(true);
-        })
-        .catch((error) => {
-            throw new Error(error);
-        })
-}
-
 const Comment = ({
     postId,
     commentId,
@@ -61,6 +30,50 @@ const Comment = ({
 }) => {
     const [comment, setComment] = useState(null);
     const [replying, setReplying] = useState(false);
+    const [submissionErrors, setSubmissionErrors] = useState([]);
+
+    const submitReply = useCallback(async (e) => {
+        e.currentTarget.blur();
+        e.preventDefault(); // Prevent form submission; handle manually
+    
+        const formData = new FormData(e.target.form);
+        const formFields = Object.fromEntries(formData);
+        const formDataJSON = JSON.stringify(formFields);
+
+        // Client-side validation
+        const errors = [];
+        if (formFields.first_name.length < 1) errors.push("Please fill in the First Name field.");
+        if (formFields.last_name.length < 1) errors.push("Please fill in the Last Name field.");
+        if (formFields.text.length < 1) errors.push("Please fill in the Your Comment field.");
+        if (errors.length > 0) {
+            setSubmissionErrors(errors);
+            return;
+        }
+
+        // POST comment
+        await fetch(`http://localhost:3000/posts/${postId}/comments/${commentId}`, {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: formDataJSON,
+        })
+            .then(async (response) => {
+                if (response.status >= 400) {
+                    throw new Error(`Request error: status ${response.status}`);
+                } else {
+                    return response.json();
+                }
+            })
+            .then((response) => {
+                // Successful response - refresh page
+                location.reload(true);
+            })
+            .catch((error) => {
+                throw new Error(error);
+            })
+    }, []);
 
     useEffect(() => {
         if (!mongoose.Types.ObjectId.isValid(postId)) return;
@@ -112,7 +125,10 @@ const Comment = ({
                                 aria-label="Reply to comment"
                                 text="reply"
                                 onClickHandler={() => {
-                                    if (canReply) setReplying(!replying); 
+                                    if (canReply) {
+                                        if (replying) setSubmissionErrors([]);
+                                        setReplying(!replying); 
+                                    }
                                 }}
                                 sizeRem={1.8}
                             />
@@ -126,12 +142,27 @@ const Comment = ({
                         :   null}
                     </div>
                     {replying
-                    ?   <div className={styles["comment-form"]}>
+                    ?   <>
+                        <div className={styles["comment-form"]}>
                             <CommentForm
-                                onCloseHandler={() => { setReplying(false); }}
-                                onSubmitHandler={(e) => submitReply(e, postId, commentId)}
+                                onCloseHandler={() => {
+                                    if (replying) setSubmissionErrors([]);
+                                    setReplying(false);
+                                }}
+                                onSubmitHandler={(e) => submitReply(e)}
                             />
                         </div>
+                        {submissionErrors.length > 0
+                        ?   <div className={styles["submission-errors"]}>
+                                <h4 className={styles["error-title"]}>Error(s):</h4>
+                                <ul className={styles["error-list"]}>
+                                    {submissionErrors.map((error) => {
+                                        return <li className={styles["error-item"]}>{error}</li>
+                                    })}
+                                </ul>
+                            </div>
+                        :   null}
+                        </>
                     :   null}
                 </div>
             </li>

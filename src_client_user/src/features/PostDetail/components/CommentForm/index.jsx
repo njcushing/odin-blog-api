@@ -32,19 +32,26 @@ const CommentForm = ({
             >
                 <div className={styles["names"]}>
                     <label className={styles["first-name"]}>First Name *
-                        <input type="text" id="first-name" name="first_name"></input>
+                        <input type="text" id="first-name" name="first_name" required></input>
                     </label>
                     <label className={styles["last-name"]}>Last Name *
-                        <input type="text" id="last-name" name="last_name"></input>
+                        <input type="text" id="last-name" name="last_name" required></input>
                     </label>
                 </div>
                 <label className={styles["comment"]}>Your Comment *
-                    <textarea id="text" name="text"></textarea>
+                    <textarea id="text" name="text" required></textarea>
                 </label>
                 <button
                     className={styles["submit-button"]}
                     type="submit"
-                    onClick={onSubmitHandler}
+                    onClick={(e) => {
+                        onSubmitHandler(e);
+                        e.currentTarget.blur();
+                        e.preventDefault();
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.blur();
+                    }}
                 >Post Comment</button>
             </form>
         </div>
