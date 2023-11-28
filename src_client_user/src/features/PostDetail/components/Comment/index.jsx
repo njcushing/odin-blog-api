@@ -137,7 +137,7 @@ const Comment = ({
                         ?   <a
                                 className={styles["view-more-replies-anchor"]}
                                 aria-label="View more replies"
-                                href={null}
+                                href={`/posts/${postId}/comments/${commentId}`}
                             >View more replies...</a>
                         :   null}
                     </div>

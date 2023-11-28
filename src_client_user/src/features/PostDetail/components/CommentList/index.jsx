@@ -18,7 +18,7 @@ const CommentList = ({
                         <Comment
                             postId={postId}
                             commentId={comment}
-                            depth={0}
+                            depth={1}
                             maximumDepth={maximumDepth}
                             canReply={true}
                         />
