@@ -94,28 +94,3 @@
 .comment-form {
     grid-area: 3 / 1 / -1 / -1;
 }
-
-.submission-errors {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-}
-
-.error-title {
-    color: rgba(255, 255, 255, 1.0);
-    font-weight: normal;
-
-    padding: 0rem auto;
-    margin: 0rem;
-}
-
-.error-list {
-    color: rgba(255, 255, 255, 1.0);
-    
-    padding: 0rem auto;
-    margin: 0rem;
-}
-
-.error-item {
-    color: rgba(255, 255, 255, 1.0);
-}

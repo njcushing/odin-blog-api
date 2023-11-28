@@ -2,6 +2,7 @@
     container-type: inline-size;
 
     width: 100%;
+    max-width: 1000px;
 }
 
 .container {
@@ -53,7 +54,6 @@
     grid-area: 3 / 1 / 4 / -1;
 }
 
-
 .first-name,
 .last-name {
     width: 30%;
@@ -99,4 +99,49 @@
     background-color: rgba(255, 255, 255, 0.7);
 
     outline: 2px solid rgba(255, 255, 255, 1.0);
+}
+
+.submit-button {
+    color: rgb(0, 0, 0);
+    font-size: 0.9rem;
+    background-color: rgba(255, 255, 255, 1.0);
+
+    border: none;
+    border-radius: 0.3rem;
+    outline: 1px solid rgba(255, 255, 255, 1.0);
+
+    width: 100%;
+    max-width: 10rem;
+    height: 2rem;
+}
+
+.submit-button:focus {
+    background-color: rgba(214, 214, 214, 1.0);
+
+    outline: 2px solid rgba(255, 255, 255, 1.0);
+}
+
+.submission-errors {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.error-title {
+    color: rgba(255, 255, 255, 1.0);
+    font-weight: normal;
+
+    padding: 0rem auto;
+    margin: 0rem;
+}
+
+.error-list {
+    color: rgba(255, 255, 255, 1.0);
+    
+    padding: 0rem auto;
+    margin: 0rem;
+}
+
+.error-item {
+    color: rgba(255, 255, 255, 1.0);
 }

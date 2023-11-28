@@ -4,7 +4,8 @@
     gap: 1.0rem;
 }
 
-.return-button {
+.return-button,
+.reply-button {
     align-self: center;
 
     color: rgb(0, 0, 0);
@@ -20,7 +21,8 @@
     height: 2rem;
 }
 
-.return-button:focus {
+.return-button:focus,
+.reply-button:focus {
     background-color: rgba(214, 214, 214, 1.0);
 
     outline: 2px solid rgba(255, 255, 255, 1.0);
@@ -29,6 +31,7 @@
 .post-information {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 1.0rem;
 }
 
@@ -56,4 +59,11 @@
 
     padding: 0rem;
     margin: 0rem;
+}
+
+.comment-form {
+    display: flex;
+    justify-content: center;
+
+    width: 1000px;
 }

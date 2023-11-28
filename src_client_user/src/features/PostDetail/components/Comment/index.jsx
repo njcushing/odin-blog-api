@@ -142,27 +142,16 @@ const Comment = ({
                         :   null}
                     </div>
                     {replying
-                    ?   <>
-                        <div className={styles["comment-form"]}>
+                    ?   <div className={styles["comment-form"]}>
                             <CommentForm
                                 onCloseHandler={() => {
                                     if (replying) setSubmissionErrors([]);
                                     setReplying(false);
                                 }}
                                 onSubmitHandler={(e) => submitReply(e)}
+                                submissionErrors={submissionErrors}
                             />
                         </div>
-                        {submissionErrors.length > 0
-                        ?   <div className={styles["submission-errors"]}>
-                                <h4 className={styles["error-title"]}>Error(s):</h4>
-                                <ul className={styles["error-list"]}>
-                                    {submissionErrors.map((error) => {
-                                        return <li className={styles["error-item"]}>{error}</li>
-                                    })}
-                                </ul>
-                            </div>
-                        :   null}
-                        </>
                     :   null}
                 </div>
             </li>

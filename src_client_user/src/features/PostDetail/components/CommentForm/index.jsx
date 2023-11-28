@@ -6,6 +6,7 @@ import MaterialSymbolsButton from "@/components/MaterialSymbolsButton";
 const CommentForm = ({
     onCloseHandler,
     onSubmitHandler,
+    submissionErrors,
 }) => {
     return (
         <div className={styles["wrapper"]}>
@@ -53,6 +54,16 @@ const CommentForm = ({
                         e.currentTarget.blur();
                     }}
                 >Post Comment</button>
+                {submissionErrors.length > 0
+                ?   <div className={styles["submission-errors"]}>
+                        <h4 className={styles["error-title"]}>Error(s):</h4>
+                        <ul className={styles["error-list"]}>
+                            {submissionErrors.map((error) => {
+                                return <li className={styles["error-item"]}>{error}</li>
+                            })}
+                        </ul>
+                    </div>
+                :   null}
             </form>
         </div>
         </div>
@@ -62,11 +73,13 @@ const CommentForm = ({
 CommentForm.propTypes = {
     onCloseHandler: PropTypes.func,
     onSubmitHandler: PropTypes.func,
+    submissionErrors: PropTypes.arrayOf(PropTypes.string),
 }
 
 CommentForm.defaultProps = {
     onCloseHandler: () => {},
     onSubmitHandler: () => {},
+    submissionErrors: [],
 }
 
 export default CommentForm;
