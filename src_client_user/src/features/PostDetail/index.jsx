@@ -9,9 +9,10 @@ import CommentForm from "./components/CommentForm";
 const PostDetail = ({
     canReply,
 }) => {
-    const { postId } = useParams();
+    const { postId, commentId } = useParams();
 
     const [post, setPost] = useState(null);
+    const [comments, setComments] = useState([]);
     const [replying, setReplying] = useState(false);
     const [submissionErrors, setSubmissionErrors] = useState([]);
 
@@ -59,7 +60,10 @@ const PostDetail = ({
     }, []);
 
     useEffect(() => {
-        fetch(`http://localhost:3000/posts/${postId}`, {
+        const url = commentId === undefined
+        ? `http://localhost:3000/posts/${postId}`
+        : `http://localhost:3000/posts/${postId}/comments/${commentId}`
+        fetch(url, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -74,7 +78,14 @@ const PostDetail = ({
                     return response.json();
                 }
             })
-            .then((response) => setPost(response.data))
+            .then((response) => {
+                setPost(response.data);
+                if (commentId === undefined) {
+                    setComments(response.data.comments);
+                } else {
+                    setComments([response.data._id]);
+                }
+            })
             .catch((error) => console.log(error))
     }, []);
 
@@ -95,43 +106,57 @@ const PostDetail = ({
             <div className={styles["post-information"]}>
                 {post
                 ?   <>
-                    <h1 className={styles["title"]}>{
-                        post.title ? post.title : "This post has no title."
-                    }</h1>
-                    <p className={styles["text"]}>{
-                        post.text ? post.text : "This post has no description."
-                    }</p>
-                    {replying
-                    ?   <div className={styles["comment-form-container"]}>
-                            <div className={styles["comment-form"]}>
-                                <CommentForm
-                                    onCloseHandler={() => {
-                                        if (replying) setSubmissionErrors([]);
-                                        setReplying(false);
-                                    }}
-                                    onSubmitHandler={(e) => submitComment(e)}
-                                    submissionErrors={submissionErrors}
-                                />
+                    {commentId === undefined
+                    ?   <>
+                        <h1 className={styles["title"]}>{
+                            post.title ? post.title : "This post has no title."
+                        }</h1>
+                        <p className={styles["text"]}>{
+                            post.text ? post.text : "This post has no description."
+                        }</p>
+                        {replying
+                        ?   <div className={styles["comment-form-container"]}>
+                                <div className={styles["comment-form"]}>
+                                    <CommentForm
+                                        onCloseHandler={() => {
+                                            if (replying) setSubmissionErrors([]);
+                                            setReplying(false);
+                                        }}
+                                        onSubmitHandler={(e) => submitComment(e)}
+                                        submissionErrors={submissionErrors}
+                                    />
+                                </div>
                             </div>
-                        </div>
+                        :   <button
+                                className={styles["reply-button"]}
+                                onClick={(e) => {
+                                    e.currentTarget.blur();
+                                    e.preventDefault();
+                                    setReplying(true);
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.blur();
+                                }}
+                            >Leave a Comment</button>}
+                        </>
                     :   <button
-                            className={styles["reply-button"]}
+                            className={styles["return-button"]}
                             onClick={(e) => {
                                 e.currentTarget.blur();
                                 e.preventDefault();
-                                setReplying(true);
+                                window.location.href = `/posts/${postId}`;
                             }}
                             onMouseLeave={(e) => {
                                 e.currentTarget.blur();
                             }}
-                        >Leave a Comment</button>}
-                    {post.comments ? post.comments.length > 0
+                        >Return to Post</button>}
+                    {comments.length > 0
                     ? <CommentList
                         postId={postId}
-                        commentIds={post.comments}
+                        commentIds={comments}
                         maximumDepth={4}
                         />
-                    : <h4>Be the first to comment on this post!</h4> : null}
+                    : <h4>Be the first to comment on this post!</h4>}
                     </>
                 : null }
             </div>

@@ -18,7 +18,7 @@ const Router = () => {
             element: <PostDetail />,
         },
         {
-            path: "/posts/:postId/comments/:commentsId",
+            path: "/posts/:postId/comments/:commentId",
             element: <PostDetail />,
         },
     ]);
