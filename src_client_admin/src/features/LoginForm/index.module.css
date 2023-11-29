@@ -17,6 +17,15 @@
     padding: 1.0rem;
 }
 
+.requirement-message {
+    color: rgba(255, 255, 255, 1.0);
+    font-size: 0.85rem;
+    font-weight: normal;
+
+    padding: 0rem;
+    margin: 0rem;
+}
+
 .form {
     display: grid;
     grid-template-rows: repeat(2, auto);

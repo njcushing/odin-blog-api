@@ -9,6 +9,11 @@ const LoginForm = () => {
     return (
         <div className={styles["wrapper"]}>
         <div className={styles["container"]}>
+            <h4
+                className={styles["requirement-message"]}
+            >
+                    All fields marked with a <strong>*</strong> are <strong>required</strong>.
+            </h4>
             <form
                 className={styles["form"]}
                 method="POST"
