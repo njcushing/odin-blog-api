@@ -1,8 +1,10 @@
-import styles from './App.module.css';
+import styles from "./App.module.css";
+
+import Router from "./routes/Router.jsx";
 
 const App = () => {
     return (
-        <h1>Hello Admin!</h1>
+        <Router />
     )
 };
 

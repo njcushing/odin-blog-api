@@ -1,0 +1,41 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.title {
+    font-size: 2.2rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+
+    padding: 0rem;
+    margin: 0rem;
+}
+
+.post-list-title {
+    font-size: 1.4rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+
+    padding: 0rem;
+    margin: 0rem;
+}
+
+.post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    list-style: none;
+
+    padding: 1rem 0.2rem;
+    margin: 0rem;
+}
+
+.post {
+    display: flex;
+    justify-content: center;
+    
+    width: 100%;
+}
