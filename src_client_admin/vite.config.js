@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+const env = dotenv.config().parsed;
+
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import path from "path";
@@ -10,5 +13,8 @@ export default defineConfig({
         alias: {
             "@": path.resolve(__dirname, "./src"),
         },
+    },
+    define: {
+        "process.env.SERVER_DOMAIN": JSON.stringify(env.SERVER_DOMAIN),
     },
 });

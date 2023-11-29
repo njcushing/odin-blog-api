@@ -35,7 +35,7 @@ const PostDetail = ({
         }
 
         // POST comment
-        await fetch(`http://localhost:3000/posts/${postId}/comments`, {
+        await fetch(`${process.env.SERVER_DOMAIN}/posts/${postId}/comments`, {
             method: "POST",
             mode: "cors",
             headers: {
@@ -61,8 +61,8 @@ const PostDetail = ({
 
     useEffect(() => {
         const url = commentId === undefined
-        ? `http://localhost:3000/posts/${postId}`
-        : `http://localhost:3000/posts/${postId}/comments/${commentId}`
+        ? `${process.env.SERVER_DOMAIN}/posts/${postId}`
+        : `${process.env.SERVER_DOMAIN}/posts/${postId}/comments/${commentId}`
         fetch(url, {
             method: "GET",
             mode: "cors",

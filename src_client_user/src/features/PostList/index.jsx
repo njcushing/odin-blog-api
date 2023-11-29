@@ -7,7 +7,7 @@ const PostList = () => {
     const [postList, setPostList] = useState(null);
 
     useEffect(() => {
-        fetch("http://localhost:3000/posts", {
+        fetch(`${process.env.SERVER_DOMAIN}/posts`, {
             method: "GET",
             mode: "cors",
             headers: {
