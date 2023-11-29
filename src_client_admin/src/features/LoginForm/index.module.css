@@ -1,0 +1,119 @@
+.wrapper {
+    container-type: inline-size;
+
+    width: 100%;
+    max-width: 1000px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 0.5rem;
+
+    width: auto;
+    padding: 1.0rem;
+}
+
+.form {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    gap: 1.0rem 0.2rem;
+}
+
+.form-fields {
+    grid-area: 1 / 1 / 2 / -1;
+
+    display: flex;
+    gap: 0.4rem;
+}
+
+.submit-button {
+    grid-area: 2 / 1 / -1 / -1;
+}
+
+.username,
+.password {
+    width: 30%;
+    min-width: 200px;
+}
+
+.username,
+.password {
+    color: rgba(255, 255, 255, 1.0);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.username input,
+.password input {
+    height: 1.4rem;
+}
+
+.username input,
+.password input {
+    color: rgb(0, 0, 0);
+    background-color: rgba(255, 255, 255, 0.92);
+
+    border: none;
+    border-radius: 0.3rem;
+    outline: 1px solid rgba(255, 255, 255, 1.0);
+
+    width: auto;
+}
+
+.username input:focus,
+.password input:focus {
+    background-color: rgba(255, 255, 255, 0.7);
+
+    outline: 2px solid rgba(255, 255, 255, 1.0);
+}
+
+.submit-button {
+    color: rgb(0, 0, 0);
+    font-size: 0.9rem;
+    background-color: rgba(255, 255, 255, 1.0);
+
+    border: none;
+    border-radius: 0.3rem;
+    outline: 1px solid rgba(255, 255, 255, 1.0);
+
+    width: 100%;
+    max-width: 10rem;
+    height: 2rem;
+}
+
+.submit-button:focus {
+    background-color: rgba(214, 214, 214, 1.0);
+
+    outline: 2px solid rgba(255, 255, 255, 1.0);
+}
+
+.submission-errors {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.error-title {
+    color: rgba(255, 255, 255, 1.0);
+    font-weight: normal;
+
+    padding: 0rem auto;
+    margin: 0rem;
+}
+
+.error-list {
+    color: rgba(255, 255, 255, 1.0);
+    
+    padding: 0rem auto;
+    margin: 0rem;
+}
+
+.error-item {
+    color: rgba(255, 255, 255, 1.0);
+}
