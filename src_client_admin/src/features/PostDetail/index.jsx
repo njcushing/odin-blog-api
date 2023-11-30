@@ -43,7 +43,7 @@ const PostDetail = ({
             },
             body: formDataJSON,
         })
-            .then(async (response) => {
+            .then((response) => {
                 if (response.status >= 400) {
                     throw new Error(`Request error: status ${response.status}`);
                 } else {

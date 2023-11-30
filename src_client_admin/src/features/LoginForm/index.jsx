@@ -4,7 +4,51 @@ import styles from "./index.module.css";
 const LoginForm = () => {
     const [submissionErrors, setSubmissionErrors] = useState([]);
 
-    const attemptLogin = useCallback(async (e) => {});
+    const attemptLogin = useCallback(async (e) => {
+        e.currentTarget.blur();
+        e.preventDefault(); // Prevent form submission; handle manually
+    
+        const formData = new FormData(e.target.form);
+        const formFields = Object.fromEntries(formData);
+        const formDataJSON = JSON.stringify(formFields);
+
+        // Client-side validation
+        const errors = [];
+        if (formFields.password.length < 1) errors.push("Please fill in the First Name field.");
+        if (formFields.username.length < 1) errors.push("Please fill in the Last Name field.");
+        if (errors.length > 0) {
+            setSubmissionErrors(errors);
+            return;
+        }
+
+        // POST user credentials
+        await fetch(`${process.env.SERVER_DOMAIN}/login`, {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: formDataJSON,
+        })
+            .then(async (response) => {
+                const json = await response.json();
+                if (response.status >= 400) {
+                    setSubmissionErrors([json.message]);
+                    throw new Error(`Request error: status ${response.status}`);
+                } else {
+                    return json;
+                }
+            })
+            .then((response) => {
+                const token = response.data.token;
+                localStorage.setItem("authToken", 'Bearer ' + token);
+                // Successful response - refresh page
+                window.location.href = "/posts";
+            })
+            .catch((error) => {
+                throw new Error(error);
+            })
+    }, []);
 
     return (
         <div className={styles["wrapper"]}>
