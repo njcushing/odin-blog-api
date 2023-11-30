@@ -17,7 +17,16 @@
     padding: 1.0rem;
 }
 
-.top-row {
+.title {
+    color: rgba(255, 255, 255, 1.0);
+    font-size: 1.2rem;
+    font-weight: normal;
+
+    padding: 0rem;
+    margin: 0rem;
+}
+
+.close-button-and-requirement-message {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;

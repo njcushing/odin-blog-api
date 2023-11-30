@@ -4,14 +4,19 @@ import styles from "./index.module.css";
 import MaterialSymbolsButton from "@/components/MaterialSymbolsButton";
 
 const CommentForm = ({
+    title,
     onCloseHandler,
     onSubmitHandler,
     submissionErrors,
+    firstName,
+    lastName,
+    text,
 }) => {
     return (
         <div className={styles["wrapper"]}>
         <div className={styles["container"]}>
-            <div className={styles["top-row"]}>
+            {title !== "" ? <h4 className={styles["title"]}>{title}</h4> : null}
+            <div className={styles["close-button-and-requirement-message"]}>
                 <div className={styles["close-form-button"]}>
                     <MaterialSymbolsButton
                         aria-label="Close form"
@@ -33,14 +38,14 @@ const CommentForm = ({
             >
                 <div className={styles["names"]}>
                     <label className={styles["first-name"]}>First Name *
-                        <input type="text" id="first-name" name="first_name" required></input>
+                        <input type="text" id="first-name" name="first_name" defaultValue={firstName} required></input>
                     </label>
                     <label className={styles["last-name"]}>Last Name *
-                        <input type="text" id="last-name" name="last_name" required></input>
+                        <input type="text" id="last-name" name="last_name" defaultValue={lastName} required></input>
                     </label>
                 </div>
                 <label className={styles["comment"]}>Your Comment *
-                    <textarea id="text" name="text" required></textarea>
+                    <textarea id="text" name="text" defaultValue={text} required></textarea>
                 </label>
                 <button
                     className={styles["submit-button"]}
@@ -74,15 +79,23 @@ const CommentForm = ({
 }
 
 CommentForm.propTypes = {
+    title: PropTypes.string,
     onCloseHandler: PropTypes.func,
     onSubmitHandler: PropTypes.func,
     submissionErrors: PropTypes.arrayOf(PropTypes.string),
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+    text: PropTypes.string,
 }
 
 CommentForm.defaultProps = {
+    title: "",
     onCloseHandler: () => {},
     onSubmitHandler: () => {},
     submissionErrors: [],
+    firstName: "",
+    lastName: "",
+    text: "",
 }
 
 export default CommentForm;

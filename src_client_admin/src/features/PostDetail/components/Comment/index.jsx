@@ -30,6 +30,7 @@ const Comment = ({
 }) => {
     const [comment, setComment] = useState(null);
     const [replying, setReplying] = useState(false);
+    const [editing, setEditing] = useState(false);
     const [submissionErrors, setSubmissionErrors] = useState([]);
 
     const submitReply = useCallback(async (e) => {
@@ -150,15 +151,30 @@ const Comment = ({
                                 text="reply"
                                 onClickHandler={() => {
                                     if (canReply) {
-                                        if (replying) setSubmissionErrors([]);
-                                        setReplying(!replying); 
+                                        if (editing) setEditing(false);
+                                        setSubmissionErrors([]);
+                                        setReplying(!replying);
                                     }
                                 }}
                                 sizeRem={1.8}
                             />
                         </div>
                         {!comment.deleted
-                        ?   <div className={styles["delete-button"]}>
+                        ?   <>
+                            <div className={styles["edit-button"]}>
+                                Edit
+                                <MaterialSymbolsButton
+                                    aria-label="Edit comment"
+                                    text="edit"
+                                    onClickHandler={(e) => {
+                                        if (replying) setReplying(false);
+                                        setSubmissionErrors([]);
+                                        setEditing(!editing);
+                                    }}
+                                    sizeRem={1.8}
+                                />
+                            </div>
+                            <div className={styles["delete-button"]}>
                                 Delete
                                 <MaterialSymbolsButton
                                     aria-label="Delete comment"
@@ -167,6 +183,7 @@ const Comment = ({
                                     sizeRem={1.8}
                                 />
                             </div>
+                            </>
                         : null}
                         {depth >= maximumDepth && comment.replies.length > 0
                         ?   <a
@@ -176,15 +193,23 @@ const Comment = ({
                             >View more replies...</a>
                         :   null}
                     </div>
-                    {replying
+                    {replying || editing
                     ?   <div className={styles["comment-form"]}>
                             <CommentForm
+                                title={replying ? "Reply" : "Edit"}
                                 onCloseHandler={() => {
-                                    if (replying) setSubmissionErrors([]);
+                                    setSubmissionErrors([]);
                                     setReplying(false);
+                                    setEditing(false);
                                 }}
-                                onSubmitHandler={(e) => submitReply(e)}
+                                onSubmitHandler={(e) => {
+                                    if (replying) submitReply(e);
+                                    if (editing) submitEdit(e);
+                                }}
                                 submissionErrors={submissionErrors}
+                                firstName={editing ? comment.first_name : ""}
+                                lastName={editing ? comment.last_name : ""}
+                                text={editing ? comment.text : ""}
                             />
                         </div>
                     :   null}
