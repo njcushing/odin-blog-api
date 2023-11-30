@@ -121,6 +121,7 @@ const PostList = () => {
                         datePosted={post.date_posted ? post.date_posted : null}
                         dateLastUpdated={post.date_last_updated ? post.date_last_updated : null}
                         commentCount={post.comments ? post.comments.length : 0}
+                        visible={post.visible}
                     />
                     </li>
                 ) : null;

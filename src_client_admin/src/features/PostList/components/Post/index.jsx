@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import styles from "./index.module.css";
 
@@ -20,27 +20,59 @@ const Post = ({
     datePosted,
     dateLastUpdated,
     commentCount,
+    visible,
 }) => {
-    let _idValidated = _id;
-    if (!mongoose.Types.ObjectId.isValid(_id)) _idValidated = null;
+    const [editing, setEditing] = useState(false);
+    const [submissionErrors, setSubmissionErrors] = useState([]);
 
-    let datePostedFormatted;
-    if (datePosted && isDate(datePosted)) {
-        datePostedFormatted = DateTime.fromJSDate(new Date(datePosted)).toLocaleString(
-            DateTime.DATETIME_SHORT_WITH_SECONDS
-        );
-    } else {
-        datePostedFormatted = "Unknown"
-    }
+    const updatePost = useCallback(async (e) => {
+        e.currentTarget.blur();
+        e.preventDefault(); // Prevent form submission; handle manually
+    
+        const formData = new FormData(e.target.form);
+        const formFields = Object.fromEntries(formData);
 
-    let dateLastUpdatedFormatted;
-    if (dateLastUpdated && isDate(dateLastUpdated)) {
-        dateLastUpdatedFormatted = DateTime.fromJSDate(new Date(dateLastUpdated)).toLocaleString(
-            DateTime.DATETIME_SHORT_WITH_SECONDS
-        );
-    } else {
-        dateLastUpdatedFormatted = "Unknown"
-    }
+        // Client-side validation
+        const errors = [];
+        if (formFields.title.length < 1) errors.push("Please fill in the Title field.");
+        if (formFields.text.length < 1) errors.push("Please fill in the Text field.");
+        if (formFields.visible === "on") {
+            formFields.visible = true;
+        } else {
+            formFields.visible = false;
+        }
+        if (errors.length > 0) {
+            setSubmissionErrors(errors);
+            return;
+        }
+
+        const formDataJSON = JSON.stringify(formFields);
+
+        // UPDATE post
+        await fetch(`${process.env.SERVER_DOMAIN}/posts/${_id}`, {
+            method: "PUT",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+                "authorization": localStorage.getItem("authToken"),
+            },
+            body: formDataJSON,
+        })
+            .then((response) => {
+                if (response.status >= 400) {
+                    throw new Error(`Request error: status ${response.status}`);
+                } else {
+                    return response.json();
+                }
+            })
+            .then((response) => {
+                // Successful response - refresh page
+                location.reload(true);
+            })
+            .catch((error) => {
+                throw new Error(error);
+            })
+    }, []);
 
     const deletePost = useCallback(async (e) => {
         e.currentTarget.blur();
@@ -70,6 +102,27 @@ const Post = ({
             })
     }, []);
 
+    let _idValidated = _id;
+    if (!mongoose.Types.ObjectId.isValid(_id)) _idValidated = null;
+
+    let datePostedFormatted;
+    if (datePosted && isDate(datePosted)) {
+        datePostedFormatted = DateTime.fromJSDate(new Date(datePosted)).toLocaleString(
+            DateTime.DATETIME_SHORT_WITH_SECONDS
+        );
+    } else {
+        datePostedFormatted = "Unknown"
+    }
+
+    let dateLastUpdatedFormatted;
+    if (dateLastUpdated && isDate(dateLastUpdated)) {
+        dateLastUpdatedFormatted = DateTime.fromJSDate(new Date(dateLastUpdated)).toLocaleString(
+            DateTime.DATETIME_SHORT_WITH_SECONDS
+        );
+    } else {
+        dateLastUpdatedFormatted = "Unknown"
+    }
+
     return (
         <div className={styles["wrapper"]}>
         <div className={styles["container"]}>
@@ -89,6 +142,18 @@ const Post = ({
                 />
             </div>
             <div className={styles["edit-and-delete-buttons-container"]}>
+                <div className={styles["edit-button"]}>
+                    Edit
+                    <MaterialSymbolsButton
+                        aria-label="Edit post"
+                        text="edit"
+                        onClickHandler={(e) => {
+                            setSubmissionErrors([]);
+                            setEditing(!editing);
+                        }}
+                        sizeRem={1.8}
+                    />
+                </div>
                 <div className={styles["delete-button"]}>
                     Delete
                     <MaterialSymbolsButton
@@ -99,6 +164,23 @@ const Post = ({
                     />
                 </div>
             </div>
+            {editing
+            ?   <div className={styles["post-form"]}>
+                    <PostForm
+                        onCloseHandler={() => {
+                            setSubmissionErrors([]);
+                            setEditing(false);
+                        }}
+                        onSubmitHandler={(e) => {
+                            updatePost(e);
+                        }}
+                        submissionErrors={submissionErrors}
+                        title={title}
+                        text={text}
+                        visible={visible}
+                    />
+                </div>
+            :   null}
         </div>
         </div>
     );
@@ -111,6 +193,7 @@ Post.propTypes = {
     datePosted: PropTypes.string,
     dateLastUpdated: PropTypes.string,
     commentCount: PropTypes.number,
+    visible: PropTypes.bool.isRequired,
 }
 
 Post.defaultProps = {
