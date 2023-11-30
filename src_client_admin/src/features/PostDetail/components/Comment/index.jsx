@@ -33,7 +33,7 @@ const Comment = ({
     const [editing, setEditing] = useState(false);
     const [submissionErrors, setSubmissionErrors] = useState([]);
 
-    const submitReply = useCallback(async (e) => {
+    const submitComment = useCallback(async (e, method) => {
         e.currentTarget.blur();
         e.preventDefault(); // Prevent form submission; handle manually
     
@@ -53,10 +53,11 @@ const Comment = ({
 
         // POST comment
         await fetch(`${process.env.SERVER_DOMAIN}/posts/${postId}/comments/${commentId}`, {
-            method: "POST",
+            method: method,
             mode: "cors",
             headers: {
                 "Content-Type": "application/json",
+                "authorization": localStorage.getItem("authToken"),
             },
             body: formDataJSON,
         })
@@ -85,7 +86,7 @@ const Comment = ({
             method: "DELETE",
             mode: "cors",
             headers: {
-                "authorization": localStorage.getItem("authToken")
+                "authorization": localStorage.getItem("authToken"),
             }
         })
             .then((response) => {
@@ -203,8 +204,8 @@ const Comment = ({
                                     setEditing(false);
                                 }}
                                 onSubmitHandler={(e) => {
-                                    if (replying) submitReply(e);
-                                    if (editing) submitEdit(e);
+                                    if (replying) submitComment(e, "POST");
+                                    if (editing) submitComment(e, "PUT");
                                 }}
                                 submissionErrors={submissionErrors}
                                 firstName={editing ? comment.first_name : ""}
