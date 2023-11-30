@@ -16,6 +16,7 @@ const CommentList = ({
                 {commentIds.map((comment) => {
                     return (
                         <Comment
+                            key={comment}
                             postId={postId}
                             commentId={comment}
                             depth={1}

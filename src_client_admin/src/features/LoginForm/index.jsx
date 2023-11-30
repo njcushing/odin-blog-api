@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import styles from "./index.module.css";
 
 const LoginForm = () => {
     const [submissionErrors, setSubmissionErrors] = useState([]);
 
-    const login = (e) => {}
+    const attemptLogin = useCallback(async (e) => {});
 
     return (
         <div className={styles["wrapper"]}>
@@ -31,7 +31,7 @@ const LoginForm = () => {
                     className={styles["submit-button"]}
                     type="submit"
                     onClick={(e) => {
-                        login(e);
+                        attemptLogin(e);
                         e.currentTarget.blur();
                         e.preventDefault();
                     }}
@@ -43,8 +43,11 @@ const LoginForm = () => {
                 ?   <div className={styles["submission-errors"]}>
                         <h4 className={styles["error-title"]}>Error(s):</h4>
                         <ul className={styles["error-list"]}>
-                            {submissionErrors.map((error) => {
-                                return <li className={styles["error-item"]}>{error}</li>
+                            {submissionErrors.map((error, index) => {
+                                return <li
+                                    key={index + 1}
+                                    className={styles["error-item"]}
+                                >{error}</li>
                             })}
                         </ul>
                     </div>

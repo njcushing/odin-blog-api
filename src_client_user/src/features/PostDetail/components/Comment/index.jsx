@@ -103,7 +103,7 @@ const Comment = ({
         <>
         {comment
         ?   <>
-            <li className={styles["wrapper"]}
+            <div className={styles["wrapper"]}
                 style={{
                     width: `${Math.max(100 - (5 * (depth - 1)), 50)}%`,
                     minWidth: `${700 * Math.max(1 - (0.05 * (depth - 1)), 0.5)}px`,
@@ -154,11 +154,12 @@ const Comment = ({
                         </div>
                     :   null}
                 </div>
-            </li>
+            </div>
             {depth < maximumDepth
             ?   comment.replies.map((reply) => {
                     return (
                         <Comment
+                            key={reply}
                             postId={postId}
                             commentId={reply}
                             depth={depth + 1}

@@ -58,8 +58,11 @@ const CommentForm = ({
                 ?   <div className={styles["submission-errors"]}>
                         <h4 className={styles["error-title"]}>Error(s):</h4>
                         <ul className={styles["error-list"]}>
-                            {submissionErrors.map((error) => {
-                                return <li className={styles["error-item"]}>{error}</li>
+                            {submissionErrors.map((error, index) => {
+                                return <li
+                                    key={index}    
+                                    className={styles["error-item"]}
+                                >{error}</li>
                             })}
                         </ul>
                     </div>
