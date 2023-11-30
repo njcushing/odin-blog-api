@@ -157,15 +157,17 @@ const Comment = ({
                                 sizeRem={1.8}
                             />
                         </div>
-                        <div className={styles["delete-button"]}>
-                            Delete
-                            <MaterialSymbolsButton
-                                aria-label="Delete comment"
-                                text="delete"
-                                onClickHandler={(e) => { deleteComment(e); }}
-                                sizeRem={1.8}
-                            />
-                        </div>
+                        {!comment.deleted
+                        ?   <div className={styles["delete-button"]}>
+                                Delete
+                                <MaterialSymbolsButton
+                                    aria-label="Delete comment"
+                                    text="delete"
+                                    onClickHandler={(e) => { deleteComment(e); }}
+                                    sizeRem={1.8}
+                                />
+                            </div>
+                        : null}
                         {depth >= maximumDepth && comment.replies.length > 0
                         ?   <a
                                 className={styles["view-more-replies-anchor"]}
