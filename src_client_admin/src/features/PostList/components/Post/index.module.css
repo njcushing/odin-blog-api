@@ -49,7 +49,7 @@
     margin: 0rem;
 }
 
-.bottom-row {
+.comments-information-container {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -63,4 +63,24 @@
 
     padding: 0rem;
     margin: 0rem;
+}
+
+.edit-and-delete-buttons-container {
+    grid-area: 2 / 2 / 3 / -1;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.edit-button,
+.delete-button {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.2rem;
+
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 1.0);
 }
