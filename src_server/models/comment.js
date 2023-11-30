@@ -33,6 +33,10 @@ const CommentSchema = new Schema({
         ref: "Comment",
         default: null,
     },
+    deleted: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 CommentSchema.virtual("date_posted_formatted").get(function () {

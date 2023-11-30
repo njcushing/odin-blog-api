@@ -133,6 +133,15 @@ export const commentGet = asyncHandler(async (req, res, next) => {
     ) {
         return next(commentParentPostMismatch(commentId, postId));
     } else {
+        if (comment.deleted) {
+            const newComment = {
+                ...comment._doc,
+                first_name: "Deleted",
+                last_name: "Deleted",
+                text: "Deleted",
+            };
+            return successfulRequest(res, 200, "Comment found", newComment);
+        }
         return successfulRequest(res, 200, "Comment found", comment);
     }
 });
@@ -330,54 +339,23 @@ export const commentDelete = [
             return next(commentParentPostMismatch(commentId, postId));
         }
 
-        // Resursively delete all the replies to the comment
-        const commentsToDeleteSet = new Set();
-        const commentsToDeleteArray = [];
-        const findRepliesToComment = async (commentId) => {
-            if (commentsToDeleteSet.has(commentId)) return;
-            // Making repeated db queries instead of one more broad query is likely
-            // horribly performant when scaled up, but it works for our small site
-            const comment = await Comment.findById(commentId);
-            if (comment === null) return;
-            commentsToDeleteSet.add(commentId);
-            commentsToDeleteArray.push(commentId);
-            await Promise.all(
-                comment.replies.map(async (reply) => {
-                    await findRepliesToComment(reply._id);
-                })
-            );
-        };
-        await Promise.all(
-            comment.replies.map(async (comment) => {
-                await findRepliesToComment(comment._id);
-            })
+        const deletedComment = await Comment.findByIdAndUpdate(
+            commentId,
+            {
+                $set: {
+                    deleted: true,
+                },
+            },
+            { new: true }
         );
-
-        const deletedComments = await Comment.deleteMany({
-            _id: { $in: commentsToDeleteArray },
-        });
-        const deletedCount = deletedComments.deletedCount + 1;
-
-        const deletedComment = await Comment.findByIdAndDelete(commentId);
-
         if (deletedComment === null) {
-            return next(
-                createError(
-                    404,
-                    `Specified comment not found at: ${commentId}. ${deletedCount} comments deleted${
-                        deletedCount === 0
-                            ? `.`
-                            : ` (comment was found in initial query but may have been deleted by another source prior to deletion by this process).`
-                    }`
-                )
-            );
-        } else {
-            return successfulRequest(
-                res,
-                200,
-                `Comment successfully deleted at: ${commentId}. ${deletedCount} comments deleted.`,
-                null
-            );
+            return next(commentNotFound(commentId));
         }
+        return successfulRequest(
+            res,
+            200,
+            `Comment successfully deleted at: ${commentId}.`,
+            deletedComment
+        );
     }),
 ];
