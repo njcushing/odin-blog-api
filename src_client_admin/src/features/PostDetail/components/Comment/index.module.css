@@ -69,7 +69,8 @@
     gap: 0.4rem;
 }
 
-.reply-button {
+.reply-button,
+.delete-button {
     display: flex;
     flex-wrap: wrap;
     align-items: center;

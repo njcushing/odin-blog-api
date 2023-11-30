@@ -133,7 +133,7 @@ const Comment = ({
                                 sizeRem={1.8}
                             />
                         </div>
-                        {depth >= maximumDepth
+                        {depth >= maximumDepth && comment.replies.length > 0
                         ?   <a
                                 className={styles["view-more-replies-anchor"]}
                                 aria-label="View more replies"

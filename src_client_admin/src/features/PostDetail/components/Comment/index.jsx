@@ -75,16 +75,40 @@ const Comment = ({
             })
     }, []);
 
+    const deleteComment = useCallback(async (e) => {
+        e.currentTarget.blur();
+        e.preventDefault(); // Prevent form submission; handle manually
+
+        // DELETE comment
+        await fetch(`${process.env.SERVER_DOMAIN}/posts/${postId}/comments/${commentId}`, {
+            method: "DELETE",
+            mode: "cors",
+            headers: {
+                "authorization": localStorage.getItem("authToken")
+            }
+        })
+            .then((response) => {
+                if (response.status >= 400) {
+                    throw new Error(`Request error: status ${response.status}`);
+                } else {
+                    return response.json();
+                }
+            })
+            .then((response) => {
+                // Successful response - refresh page
+                location.reload(true);
+            })
+            .catch((error) => {
+                throw new Error(error);
+            })
+    }, []);
+
     useEffect(() => {
         if (!mongoose.Types.ObjectId.isValid(postId)) return;
         if (!mongoose.Types.ObjectId.isValid(commentId)) return;
         fetch(`${process.env.SERVER_DOMAIN}/posts/${postId}/comments/${commentId}`, {
             method: "GET",
             mode: "cors",
-            headers: {
-                // "Content-Type": "application/json",
-                "authorization": ""
-            }
         })
             .then((response) => {
                 if (response.status >= 400) {
@@ -133,7 +157,16 @@ const Comment = ({
                                 sizeRem={1.8}
                             />
                         </div>
-                        {depth >= maximumDepth
+                        <div className={styles["delete-button"]}>
+                            Delete
+                            <MaterialSymbolsButton
+                                aria-label="Delete comment"
+                                text="delete"
+                                onClickHandler={(e) => { deleteComment(e); }}
+                                sizeRem={1.8}
+                            />
+                        </div>
+                        {depth >= maximumDepth && comment.replies.length > 0
                         ?   <a
                                 className={styles["view-more-replies-anchor"]}
                                 aria-label="View more replies"
