@@ -90,7 +90,6 @@ const PostList = () => {
                         onCloseHandler={() => {
                             setSubmissionErrors([]);
                             setCreating(false);
-                            setEditing(false);
                         }}
                         onSubmitHandler={(e) => {
                             createPost(e);
