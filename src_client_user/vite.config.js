@@ -15,6 +15,6 @@ export default defineConfig({
         },
     },
     define: {
-        "process.env.SERVER_DOMAIN": JSON.stringify(env.SERVER_DOMAIN),
+        "process.env.SERVER_DOMAIN": JSON.stringify(env.SERVER_DOMAIN || ""),
     },
 });
