@@ -49,7 +49,7 @@ const Post = ({
         const formDataJSON = JSON.stringify(formFields);
 
         // UPDATE post
-        await fetch(`${process.env.SERVER_DOMAIN}/posts/${_id}`, {
+        await fetch(`${import.meta.env.VITE_SERVER_DOMAIN}/posts/${_id}`, {
             method: "PUT",
             mode: "cors",
             headers: {
@@ -79,7 +79,7 @@ const Post = ({
         e.preventDefault(); // Prevent form submission; handle manually
 
         // DELETE post
-        await fetch(`${process.env.SERVER_DOMAIN}/posts/${_id}`, {
+        await fetch(`${import.meta.env.VITE_SERVER_DOMAIN}/posts/${_id}`, {
             method: "DELETE",
             mode: "cors",
             headers: {

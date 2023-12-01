@@ -35,7 +35,7 @@ const PostDetail = ({
         }
 
         // POST comment
-        await fetch(`${process.env.SERVER_DOMAIN}/posts/${postId}/comments`, {
+        await fetch(`${import.meta.env.VITE_SERVER_DOMAIN}/posts/${postId}/comments`, {
             method: "POST",
             mode: "cors",
             headers: {
@@ -61,8 +61,8 @@ const PostDetail = ({
 
     useEffect(() => {
         const url = commentId === undefined
-        ? `${process.env.SERVER_DOMAIN}/posts/${postId}`
-        : `${process.env.SERVER_DOMAIN}/posts/${postId}/comments/${commentId}`
+        ? `${import.meta.env.VITE_SERVER_DOMAIN}/posts/${postId}`
+        : `${import.meta.env.VITE_SERVER_DOMAIN}/posts/${postId}/comments/${commentId}`
         fetch(url, {
             method: "GET",
             mode: "cors",

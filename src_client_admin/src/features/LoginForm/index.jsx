@@ -22,7 +22,7 @@ const LoginForm = () => {
         }
 
         // POST user credentials
-        await fetch(`${process.env.SERVER_DOMAIN}/login`, {
+        await fetch(`${import.meta.env.VITE_SERVER_DOMAIN}/login`, {
             method: "POST",
             mode: "cors",
             headers: {

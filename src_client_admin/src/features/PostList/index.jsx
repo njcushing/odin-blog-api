@@ -33,7 +33,7 @@ const PostList = () => {
         const formDataJSON = JSON.stringify(formFields);
 
         // POST post
-        await fetch(`${process.env.SERVER_DOMAIN}/posts`, {
+        await fetch(`${import.meta.env.VITE_SERVER_DOMAIN}/posts`, {
             method: "POST",
             mode: "cors",
             headers: {
@@ -59,7 +59,7 @@ const PostList = () => {
     }, []);
 
     useEffect(() => {
-        fetch(`${process.env.SERVER_DOMAIN}/posts`, {
+        fetch(`${import.meta.env.VITE_SERVER_DOMAIN}/posts`, {
             method: "GET",
             mode: "cors",
             headers: {

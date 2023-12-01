@@ -7,7 +7,7 @@ const PostList = () => {
     const [postList, setPostList] = useState(null);
 
     useEffect(() => {
-        fetch(`${process.env.SERVER_DOMAIN}/posts`, {
+        fetch(`${import.meta.env.VITE_SERVER_DOMAIN}/posts`, {
             method: "GET",
             mode: "cors",
             headers: {

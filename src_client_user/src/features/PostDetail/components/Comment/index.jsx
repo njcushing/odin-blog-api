@@ -51,7 +51,7 @@ const Comment = ({
         }
 
         // POST comment
-        await fetch(`${process.env.SERVER_DOMAIN}/posts/${postId}/comments/${commentId}`, {
+        await fetch(`${import.meta.env.VITE_SERVER_DOMAIN}/posts/${postId}/comments/${commentId}`, {
             method: "POST",
             mode: "cors",
             headers: {
@@ -78,7 +78,7 @@ const Comment = ({
     useEffect(() => {
         if (!mongoose.Types.ObjectId.isValid(postId)) return;
         if (!mongoose.Types.ObjectId.isValid(commentId)) return;
-        fetch(`${process.env.SERVER_DOMAIN}/posts/${postId}/comments/${commentId}`, {
+        fetch(`${import.meta.env.VITE_SERVER_DOMAIN}/posts/${postId}/comments/${commentId}`, {
             method: "GET",
             mode: "cors",
             headers: {
