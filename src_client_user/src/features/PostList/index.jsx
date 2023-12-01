@@ -34,8 +34,8 @@ const PostList = () => {
             <h1 className={styles["title"]}>My Blog</h1>
             <h2 className={styles["post-list-title"]}>Post List</h2>
             <ul className={styles["post-list"]}>
-            {postList ? postList.map((post) => {
-                return post.visible ? (
+            {postList ? postList.length > 0 ? postList.map((post) => {
+                return (
                     <li className={styles["post"]} key={post._id}>
                     <Post
                         _id={post._id ? post._id : null}
@@ -46,8 +46,9 @@ const PostList = () => {
                         commentCount={post.comments ? post.comments.length : 0}
                     />
                     </li>
-                ) : null;
-            }) : null}
+                );
+            })
+            :   <h4 className={styles["no-posts-found-message"]}>No posts found.</h4> : null}
             </ul>
         </div>
         </div>

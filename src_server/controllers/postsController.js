@@ -36,25 +36,45 @@ const successfulRequest = (res, status, message, data) => {
     });
 };
 
-export const postsGet = asyncHandler(async (req, res, next) => {
-    const posts = await Post.find().exec();
-    if (posts === null) {
-        return createError(404, `No posts found.`);
-    } else {
-        return successfulRequest(res, 200, "Posts found", posts);
-    }
-});
+export const postsGet = (req, res, next) => {
+    passport.authenticate(
+        "jwt",
+        { session: false },
+        async (err, success, options) => {
+            let posts;
+            if (err || (options && options.message)) {
+                posts = await Post.find({ visible: true }).exec();
+            } else {
+                posts = await Post.find().exec();
+            }
+            if (posts === null) {
+                return createError(404, `No posts found.`);
+            } else {
+                return successfulRequest(res, 200, "Posts found", posts);
+            }
+        }
+    )(req, res, next);
+};
 
-export const postGet = asyncHandler(async (req, res, next) => {
-    const postId = req.params.postId;
-    if (!validatePostId(next, postId)) return;
-    const post = await Post.findById(postId).exec();
-    if (post === null) {
-        return next(postNotFound(postId));
-    } else {
-        return successfulRequest(res, 200, "Post found", post);
-    }
-});
+export const postGet = (req, res, next) => {
+    passport.authenticate(
+        "jwt",
+        { session: false },
+        async (err, success, options) => {
+            const postId = req.params.postId;
+            if (!validatePostId(next, postId)) return;
+            let post = await Post.findById(postId).exec();
+            if (err || (options && options.message)) {
+                if (!post.visible) post = null;
+            }
+            if (post === null) {
+                return next(postNotFound(postId));
+            } else {
+                return successfulRequest(res, 200, "Post found", post);
+            }
+        }
+    )(req, res, next);
+};
 
 export const postCreate = [
     protectedRouteJWT,

@@ -158,7 +158,7 @@ const PostDetail = ({
                         />
                     : <h4>Be the first to comment on this post!</h4>}
                     </>
-                : null }
+                : <h4>There doesn't seem to be anything here.</h4> }
             </div>
         </div>
         </div>

@@ -63,8 +63,7 @@ const PostList = () => {
             method: "GET",
             mode: "cors",
             headers: {
-                // "Content-Type": "application/json",
-                "authorization": ""
+                "authorization": localStorage.getItem("authToken"),
             }
         })
             .then((response) => {
@@ -111,8 +110,8 @@ const PostList = () => {
                     }}
                 >Create New Post</button>}
             <ul className={styles["post-list"]}>
-            {postList ? postList.map((post) => {
-                return post.visible ? (
+            {postList ? postList.length > 0 ? postList.map((post) => {
+                return (
                     <li className={styles["post"]} key={post._id}>
                     <Post
                         _id={post._id ? post._id : null}
@@ -124,8 +123,9 @@ const PostList = () => {
                         visible={post.visible}
                     />
                     </li>
-                ) : null;
-            }) : null}
+                );
+            })
+            :   <h4 className={styles["no-posts-found-message"]}>No posts found.</h4> : null}
             </ul>
         </div>
         </div>

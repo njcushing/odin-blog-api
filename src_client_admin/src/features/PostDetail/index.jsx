@@ -67,8 +67,7 @@ const PostDetail = ({
             method: "GET",
             mode: "cors",
             headers: {
-                // "Content-Type": "application/json",
-                "authorization": ""
+                "authorization": localStorage.getItem("authToken")
             }
         })
             .then((response) => {
@@ -158,7 +157,7 @@ const PostDetail = ({
                         />
                     : <h4>Be the first to comment on this post!</h4>}
                     </>
-                : null }
+                : <h4>There doesn't seem to be anything here.</h4> }
             </div>
         </div>
         </div>

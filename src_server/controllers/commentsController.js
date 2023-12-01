@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import asyncHandler from "express-async-handler";
 import { body, validationResult } from "express-validator";
 import createError from "http-errors";
+import passport from "passport";
 
 import Comment from "../models/comment.js";
 import Post from "../models/post.js";
@@ -99,52 +100,79 @@ const compileValidationErrors = (errorsArray) => {
     return reducedErrorArray.join(", ");
 };
 
-export const commentsGet = asyncHandler(async (req, res, next) => {
-    const postId = req.params.postId;
-    if (!validatePostId(next, postId)) return;
-    const post = await Post.findById(postId).limit(10).exec();
-    if (post === null) return next(postNotFound(postId));
+export const commentsGet = (req, res, next) => {
+    passport.authenticate(
+        "jwt",
+        { session: false },
+        async (err, success, options) => {
+            const postId = req.params.postId;
+            if (!validatePostId(next, postId)) return;
+            const post = await Post.findById(postId).limit(10).exec();
+            if (post === null) return next(postNotFound(postId));
 
-    try {
-        const comments = post.comments;
-        return successfulRequest(res, 200, "Comments found", comments);
-    } catch (err) {
-        return createError(
-            404,
-            `Comments field not found on specified post at : ${postId}.`
-        );
-    }
-});
+            // Bad/no auth; do not respond with post info or comments
+            if (err || (options && options.message)) {
+                if (!post.visible) return next(postNotFound(postId));
+            }
 
-export const commentGet = asyncHandler(async (req, res, next) => {
-    const postId = req.params.postId;
-    const commentId = req.params.commentId;
-    if (!validateDocumentIds(next, postId, commentId)) return;
-    const [post, comment] = await Promise.all([
-        Post.findById(postId),
-        Comment.findById(commentId),
-    ]);
-    if (post === null) return next(postNotFound(postId));
-    if (comment === null) return next(commentNotFound(commentId));
-
-    if (
-        comment.parent_post === null ||
-        comment.parent_post.toString() !== postId
-    ) {
-        return next(commentParentPostMismatch(commentId, postId));
-    } else {
-        if (comment.deleted) {
-            const newComment = {
-                ...comment._doc,
-                first_name: "Deleted",
-                last_name: "Deleted",
-                text: "Deleted",
-            };
-            return successfulRequest(res, 200, "Comment found", newComment);
+            try {
+                const comments = post.comments;
+                return successfulRequest(res, 200, "Comments found", comments);
+            } catch (err) {
+                return createError(
+                    404,
+                    `Comments field not found on specified post at : ${postId}.`
+                );
+            }
         }
-        return successfulRequest(res, 200, "Comment found", comment);
-    }
-});
+    )(req, res, next);
+};
+
+export const commentGet = (req, res, next) => {
+    passport.authenticate(
+        "jwt",
+        { session: false },
+        async (err, success, options) => {
+            const postId = req.params.postId;
+            const commentId = req.params.commentId;
+            if (!validateDocumentIds(next, postId, commentId)) return;
+            const [post, comment] = await Promise.all([
+                Post.findById(postId),
+                Comment.findById(commentId),
+            ]);
+            if (post === null) return next(postNotFound(postId));
+            if (comment === null) return next(commentNotFound(commentId));
+
+            // Bad/no auth; do not respond with post info or comments
+            if (err || (options && options.message)) {
+                if (!post.visible) return next(postNotFound(postId));
+            }
+
+            if (
+                comment.parent_post === null ||
+                comment.parent_post.toString() !== postId
+            ) {
+                return next(commentParentPostMismatch(commentId, postId));
+            } else {
+                if (comment.deleted) {
+                    const newComment = {
+                        ...comment._doc,
+                        first_name: "Deleted",
+                        last_name: "Deleted",
+                        text: "Deleted",
+                    };
+                    return successfulRequest(
+                        res,
+                        200,
+                        "Comment found",
+                        newComment
+                    );
+                }
+                return successfulRequest(res, 200, "Comment found", comment);
+            }
+        }
+    )(req, res, next);
+};
 
 export const commentCreate = [
     ...validateMandatoryFields,

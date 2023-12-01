@@ -111,6 +111,9 @@ const Comment = ({
         fetch(`${process.env.SERVER_DOMAIN}/posts/${postId}/comments/${commentId}`, {
             method: "GET",
             mode: "cors",
+            headers: {
+                "authorization": localStorage.getItem("authToken")
+            }
         })
             .then((response) => {
                 if (response.status >= 400) {
