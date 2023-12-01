@@ -9,6 +9,8 @@
   "scripts": {
     "clientstartuser": "vite ./src_client_user",
     "clientstartadmin": "vite ./src_client_admin",
+    "clientbuilduser": "vite build ./src_client_user",
+    "clientbuildadmin": "vite build ./src_client_admin",
     "serverstart": "node ./src_server/bin/www.js",
     "serverstartdev": "nodemon ./src_server/bin/www.js"
   },
